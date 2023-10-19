@@ -1,5 +1,6 @@
 package com.alseinn.socialmedia.request.auth;
 
+import com.alseinn.socialmedia.entity.user.enums.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,4 +17,5 @@ public class RegisterRequest {
     private String email;
     private String mobileNumber;
     private String password;
+    private Gender gender;
 }

@@ -2,9 +2,10 @@ package com.alseinn.socialmedia.entity.user;
 
 import com.alseinn.socialmedia.entity.user.enums.Gender;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
 @MappedSuperclass
 public abstract class AbstractUser {
 
@@ -18,4 +19,9 @@ public abstract class AbstractUser {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    public AbstractUser(String firstname, String lastname, Gender gender) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.gender = gender;
+    }
 }
