@@ -1,7 +1,9 @@
 package com.alseinn.socialmedia.entity.user;
 
+import com.alseinn.socialmedia.entity.post.Post;
 import com.alseinn.socialmedia.entity.user.enums.Gender;
 import com.alseinn.socialmedia.entity.user.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,11 +29,15 @@ public class User extends AbstractUser implements UserDetails {
     @Column(nullable = false ,unique = true)
     private String username;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Post> posts;
 
     @Builder
     public User(String firstname, String lastname, Gender gender, String email, String mobilePhone, String username, String password, Role role) {
