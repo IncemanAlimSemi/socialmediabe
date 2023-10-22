@@ -5,6 +5,8 @@ import com.alseinn.socialmedia.entity.user.User;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 public class UserUtils {
 
@@ -19,5 +21,10 @@ public class UserUtils {
                 .getAuthentication()
                 .getPrincipal())
                 .getUsername()).orElseThrow();
+    }
+
+    public boolean isSessionUser(User user) {
+        String sessionUsername = getUserFromSecurityContext().getUsername();
+        return Objects.equals(user.getUsername(), sessionUsername);
     }
 }
