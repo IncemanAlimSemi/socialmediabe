@@ -1,5 +1,6 @@
 package com.alseinn.socialmedia.entity.post;
 
+import com.alseinn.socialmedia.entity.comment.Comment;
 import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.post.CreatePostRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -10,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -34,5 +36,8 @@ public class Post {
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Comment> comments;
 
 }
