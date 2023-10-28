@@ -13,7 +13,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -22,13 +24,13 @@ import java.util.List;
 @Table(name = "user")
 public class User extends AbstractUser implements UserDetails {
 
-    @Column(nullable = false ,unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false ,unique = true)
+    @Column(nullable = false, unique = true)
     private String mobilePhone;
 
-    @Column(nullable = false ,unique = true)
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
@@ -46,12 +48,17 @@ public class User extends AbstractUser implements UserDetails {
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany
+    @JoinTable(name = "follow",
+            joinColumns = @JoinColumn(name = "userId", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "followerId", referencedColumnName = "id")
+    )
     @JsonIgnore
-    private List<Follow> followers;
+    private Set<User> followers = new HashSet<>();
 
-    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "followers", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<Follow> followings;
+    private Set<User> followings = new HashSet<>();
 
     @Builder
     public User(String firstname, String lastname, Gender gender, String email, String mobilePhone, String username, String password, Role role) {

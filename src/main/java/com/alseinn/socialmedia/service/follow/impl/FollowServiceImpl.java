@@ -1,69 +1,97 @@
 package com.alseinn.socialmedia.service.follow.impl;
 
-import com.alseinn.socialmedia.dao.follow.FollowRepository;
-import com.alseinn.socialmedia.entity.follow.Follow;
+import com.alseinn.socialmedia.dao.user.UserRepository;
+import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.follow.FollowRequest;
+import com.alseinn.socialmedia.request.follow.UnfollowRequest;
 import com.alseinn.socialmedia.response.follow.FollowResponse;
 import com.alseinn.socialmedia.service.follow.FollowService;
-import com.alseinn.socialmedia.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+
 
 @Service
 @RequiredArgsConstructor
 public class FollowServiceImpl implements FollowService {
 
-    private final FollowRepository followRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
+
+    public User getUserFromSecurityContext() {
+        return userRepository.findByUsername(((User) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal())
+                .getUsername()).orElseThrow();
+    }
 
     @Override
     public FollowResponse follow(FollowRequest followRequest) {
-        final String username = followRequest.getFollowingUser();
-        final String targetUsername = followRequest.getFollowedUser();
-        final Follow checkFollow = followRepository.getByFollowerUsernameAndFollowingUsername(username, targetUsername);
-        if (Objects.isNull(checkFollow)) {
+        User follower = getUserFromSecurityContext(); //takipçi
+        User followed = userRepository.findByUsername(followRequest.getFollow()).orElse(null); //takip eden
+        if (checkIsSelf(follower.getUsername(), followed.getUsername())) {
+            return createFollowResponse("You can't follow yourself", false);
+        } else if (checkIsFollowExist(follower.getId(), followed.getId())) {
+            return createFollowResponse("You already follow this user", false);
+        }else if (Objects.nonNull(follower) && Objects.nonNull(followed)) {
             try {
-                Follow follow = Follow.builder()
-                        .follower(userService.findByUsername(username))
-                        .following(userService.findByUsername(targetUsername))
-                        .build();
-                followRepository.save(follow);
-                return FollowResponse.builder()
-                        .isSuccess(true)
-                        .message("Followed successfully")
-                        .build();
+                follow(follower, followed);
+                userRepository.save(follower);
+                return createFollowResponse("Followed successfully", true);
             } catch (Exception e) {
-                throw new RuntimeException("Something went wrong: " + e.getMessage());
+                return createFollowResponse("Error occurred while following", false);
             }
+
         }
-        return FollowResponse.builder()
-                .isSuccess(false)
-                .message("Already following")
-                .build();
+        return createFollowResponse("There is no user or the follow field is empty", false);
     }
 
     @Override
-    public FollowResponse unfollow(FollowRequest unFollowRequest) {
-        final String username = unFollowRequest.getFollowingUser();
-        final String targetUsername = unFollowRequest.getFollowedUser();
-        final Follow checkfollow = followRepository.getByFollowerUsernameAndFollowingUsername(username, targetUsername);
-        if (Objects.nonNull(checkfollow)) {
+    public FollowResponse unfollow(UnfollowRequest followRequest) {
+        User follower = getUserFromSecurityContext(); //takipçi
+        User followed = userRepository.findByUsername(followRequest.getUnfollow()).orElse(null); //takip eden
+        if (checkIsSelf(follower.getUsername(), followed.getUsername())) {
+            return createFollowResponse("You can't unfollow yourself", false);
+        } else if (!checkIsFollowExist(follower.getId(), followed.getId())) {
+            return createFollowResponse("You don't follow this user", false);
+        } else if (Objects.nonNull(follower) && Objects.nonNull(followed)) {
             try {
-                followRepository.delete(checkfollow);
-                return FollowResponse.builder()
-                        .isSuccess(true)
-                        .message("Unfollowed successfully")
-                        .build();
+                unfollow(follower, followed);
+                userRepository.save(follower);
+                return createFollowResponse("Unfollowed successfully", true);
             } catch (Exception e) {
-                throw new RuntimeException("Something went wrong: " + e.getMessage());
+                return createFollowResponse("Error occurred while unfollowing", false);
             }
-        }
-        return FollowResponse.builder()
-                .isSuccess(false)
-                .message("The unfollow operation was not successful.")
-                .build();
 
+        }
+        return createFollowResponse("There is no user or the unfollow field is empty", false);
     }
+
+    private void follow(User user, User userToFollow) {
+        user.getFollowings().add(userToFollow);
+        userToFollow.getFollowers().add(user);
+    }
+
+    private void unfollow(User user, User userToUnfollow) {
+        user.getFollowings().remove(userToUnfollow);
+        userToUnfollow.getFollowers().remove(user);
+    }
+
+    private FollowResponse createFollowResponse(String message, Boolean isSuccess) {
+        return FollowResponse.builder()
+                .message(message)
+                .isSuccess(isSuccess)
+                .build();
+    }
+
+    public Boolean checkIsFollowExist(Long userId, Long followId) {
+        return userRepository.checkIsFollowExist(userId, followId);
+    }
+
+    public Boolean checkIsSelf(String user, String follow) {
+        return user.equals(follow);
+    }
+
+
 }

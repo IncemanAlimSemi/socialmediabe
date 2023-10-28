@@ -7,9 +7,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FollowRequest {
-    @NonNull
-    private String followingUser;
 
     @NonNull
-    private String followedUser;
+    private String follow;
+
 }

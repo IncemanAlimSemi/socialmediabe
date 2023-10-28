@@ -1,6 +1,5 @@
 package com.alseinn.socialmedia.response.user;
 
-import com.alseinn.socialmedia.entity.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +11,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserGetFollowersResponse {
-
-    private Set<UserFollowersDataResponse> followers;
+public class UserFollowersResponse {
+    private boolean isSuccess;
+    private Set<FollowDataResponse> followers;
 }

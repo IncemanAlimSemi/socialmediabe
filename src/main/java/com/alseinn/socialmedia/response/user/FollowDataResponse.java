@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserFollowersDataResponse {
+public class FollowDataResponse {
 
     private String username;
 

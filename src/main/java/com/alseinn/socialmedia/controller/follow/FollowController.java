@@ -1,6 +1,7 @@
 package com.alseinn.socialmedia.controller.follow;
 
 import com.alseinn.socialmedia.request.follow.FollowRequest;
+import com.alseinn.socialmedia.request.follow.UnfollowRequest;
 import com.alseinn.socialmedia.response.follow.FollowResponse;
 import com.alseinn.socialmedia.service.follow.FollowService;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +18,14 @@ public class FollowController {
 
     private final FollowService followService;
 
-    @PostMapping()
+    @PostMapping("/add")
     public ResponseEntity<FollowResponse> follow(@RequestBody FollowRequest followRequest) {
         return ResponseEntity.ok(followService.follow(followRequest));
     }
 
-    @PostMapping("/unfollow")
-    public ResponseEntity<FollowResponse> unfollow(@RequestBody FollowRequest followRequest) {
-        return ResponseEntity.ok(followService.unfollow(followRequest));
+    @PostMapping("/remove")
+    public ResponseEntity<FollowResponse> unfollow(@RequestBody UnfollowRequest unfollowRequest) {
+        return ResponseEntity.ok(followService.unfollow(unfollowRequest));
     }
 
 
