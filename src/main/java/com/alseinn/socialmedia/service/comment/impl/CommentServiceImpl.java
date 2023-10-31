@@ -7,7 +7,6 @@ import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.comment.CreateCommentRequest;
 import com.alseinn.socialmedia.request.comment.DeleteCommentRequest;
 import com.alseinn.socialmedia.response.comment.CommentResponse;
-import com.alseinn.socialmedia.response.post.PostResponse;
 import com.alseinn.socialmedia.service.comment.CommentService;
 import com.alseinn.socialmedia.service.post.PostService;
 import com.alseinn.socialmedia.service.user.UserService;
@@ -99,7 +98,19 @@ public class CommentServiceImpl implements CommentService {
 
             Comment comment = commentRepository.findById(deleteCommentRequest.getCommentId()).orElse(null);
 
+
             if (Objects.nonNull(comment)) {
+                if (!comment.getUser().getUsername().equals(user.getUsername()) &&
+                    !comment.getPost().getUser().getUsername().equals(user.getUsername())
+                ) {
+                    LOG.warning("Comment user and session user is not same -- Post: " + mapper.writeValueAsString(comment)
+                            + "-- Username: " + user.getUsername());
+                    return CommentResponse.builder()
+                            .isSuccess(false)
+                            .message("Comment user and session user is not same")
+                            .build();
+                }
+
                 try {
                     commentRepository.delete(comment);
 
