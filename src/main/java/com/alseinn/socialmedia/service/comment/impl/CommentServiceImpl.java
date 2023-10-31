@@ -103,11 +103,11 @@ public class CommentServiceImpl implements CommentService {
                 if (!comment.getUser().getUsername().equals(user.getUsername()) &&
                     !comment.getPost().getUser().getUsername().equals(user.getUsername())
                 ) {
-                    LOG.warning("Comment user and session user is not same -- Post: " + mapper.writeValueAsString(comment)
+                    LOG.warning("This user is not owner of post or comment -- Post: " + mapper.writeValueAsString(comment)
                             + "-- Username: " + user.getUsername());
                     return CommentResponse.builder()
                             .isSuccess(false)
-                            .message("Comment user and session user is not same")
+                            .message("This user is not owner of post or comment.")
                             .build();
                 }
 
