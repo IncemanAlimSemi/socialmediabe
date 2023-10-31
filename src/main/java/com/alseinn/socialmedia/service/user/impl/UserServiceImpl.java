@@ -6,8 +6,10 @@ import com.alseinn.socialmedia.response.post.PostResponse;
 import com.alseinn.socialmedia.response.user.FollowDataResponse;
 import com.alseinn.socialmedia.response.user.UserFollowersResponse;
 import com.alseinn.socialmedia.response.user.UserFollowingsResponse;
+import com.alseinn.socialmedia.service.post.impl.PostServiceImpl;
 import com.alseinn.socialmedia.service.user.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +25,8 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final ObjectMapper mapper;
+    private static final Logger LOG = Logger.getLogger(PostServiceImpl.class.getName());
 
     @Override
     public User findByUsername(String username) {
@@ -29,11 +34,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserFollowersResponse getFollowers(String username) {
+    public UserFollowersResponse getFollowers(String username) throws JsonProcessingException {
         User user = findByUsername(username);
         if (Objects.nonNull(user)) {
             return getUserFollowersResponse(user);
         }
+        LOG.warning("User can not be null! : " + mapper.writeValueAsString(username));
         return UserFollowersResponse.builder()
                 .followers(new HashSet<>(0))
                 .isSuccess(false)
@@ -42,11 +48,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserFollowingsResponse getFollowings(String username) {
+    public UserFollowingsResponse getFollowings(String username) throws JsonProcessingException {
         User user = findByUsername(username);
         if (Objects.nonNull(user)) {
             return getUserFollowingsResponse(user);
         }
+        LOG.warning("User can not be null! : " + mapper.writeValueAsString(username));
         return UserFollowingsResponse.builder()
                 .followings(new HashSet<>(0))
                 .isSuccess(false)
