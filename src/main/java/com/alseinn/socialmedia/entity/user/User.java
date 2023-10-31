@@ -1,7 +1,6 @@
 package com.alseinn.socialmedia.entity.user;
 
 import com.alseinn.socialmedia.entity.comment.Comment;
-import com.alseinn.socialmedia.entity.follow.Follow;
 import com.alseinn.socialmedia.entity.post.Post;
 import com.alseinn.socialmedia.entity.user.enums.Gender;
 import com.alseinn.socialmedia.entity.user.enums.Role;
@@ -47,7 +46,6 @@ public class User extends AbstractUser implements UserDetails {
     @JsonIgnore
     private List<Comment> comments;
 
-    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ManyToMany
     @JoinTable(name = "follow",
             joinColumns = @JoinColumn(name = "userId", referencedColumnName = "id"),

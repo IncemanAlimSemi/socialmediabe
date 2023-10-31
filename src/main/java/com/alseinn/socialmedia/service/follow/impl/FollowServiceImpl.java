@@ -6,6 +6,7 @@ import com.alseinn.socialmedia.request.follow.FollowRequest;
 import com.alseinn.socialmedia.request.follow.UnfollowRequest;
 import com.alseinn.socialmedia.response.follow.FollowResponse;
 import com.alseinn.socialmedia.service.follow.FollowService;
+import com.alseinn.socialmedia.utils.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -18,23 +19,17 @@ import java.util.Objects;
 public class FollowServiceImpl implements FollowService {
 
     private final UserRepository userRepository;
-
-    public User getUserFromSecurityContext() {
-        return userRepository.findByUsername(((User) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal())
-                .getUsername()).orElseThrow();
-    }
+    private final UserUtils userUtils;
 
     @Override
     public FollowResponse follow(FollowRequest followRequest) {
-        User follower = getUserFromSecurityContext(); //takipçi
+        User follower = userUtils.getUserFromSecurityContext(); //takipçi
         User followed = userRepository.findByUsername(followRequest.getFollow()).orElse(null); //takip eden
         if (checkIsSelf(follower.getUsername(), followed.getUsername())) {
             return createFollowResponse("You can't follow yourself", false);
         } else if (checkIsFollowExist(follower.getId(), followed.getId())) {
             return createFollowResponse("You already follow this user", false);
-        }else if (Objects.nonNull(follower) && Objects.nonNull(followed)) {
+        } else if (Objects.nonNull(follower) && Objects.nonNull(followed)) {
             try {
                 follow(follower, followed);
                 userRepository.save(follower);
@@ -49,12 +44,12 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     public FollowResponse unfollow(UnfollowRequest followRequest) {
-        User follower = getUserFromSecurityContext(); //takipçi
+        User follower = userUtils.getUserFromSecurityContext(); //takipçi
         User followed = userRepository.findByUsername(followRequest.getUnfollow()).orElse(null); //takip eden
         if (checkIsSelf(follower.getUsername(), followed.getUsername())) {
             return createFollowResponse("You can't unfollow yourself", false);
         } else if (!checkIsFollowExist(follower.getId(), followed.getId())) {
-            return createFollowResponse("You don't follow this user", false);
+            return createFollowResponse("You don't unfollow this user", false);
         } else if (Objects.nonNull(follower) && Objects.nonNull(followed)) {
             try {
                 unfollow(follower, followed);
