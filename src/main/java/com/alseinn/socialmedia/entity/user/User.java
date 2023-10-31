@@ -1,7 +1,10 @@
 package com.alseinn.socialmedia.entity.user;
 
+import com.alseinn.socialmedia.entity.comment.Comment;
+import com.alseinn.socialmedia.entity.post.Post;
 import com.alseinn.socialmedia.entity.user.enums.Gender;
 import com.alseinn.socialmedia.entity.user.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,7 +12,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -18,20 +23,40 @@ import java.util.List;
 @Table(name = "user")
 public class User extends AbstractUser implements UserDetails {
 
-    @Column(nullable = false ,unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false ,unique = true)
+    @Column(nullable = false, unique = true)
     private String mobilePhone;
 
-    @Column(nullable = false ,unique = true)
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Post> posts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Comment> comments;
+
+    @ManyToMany
+    @JoinTable(name = "follow",
+            joinColumns = @JoinColumn(name = "userId", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "followerId", referencedColumnName = "id")
+    )
+    @JsonIgnore
+    private Set<User> followers = new HashSet<>();
+
+    @ManyToMany(mappedBy = "followers", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<User> followings = new HashSet<>();
 
     @Builder
     public User(String firstname, String lastname, Gender gender, String email, String mobilePhone, String username, String password, Role role) {
