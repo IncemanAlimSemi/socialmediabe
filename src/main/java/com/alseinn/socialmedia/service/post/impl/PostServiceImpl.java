@@ -87,6 +87,14 @@ public class PostServiceImpl implements PostService {
             }
             Post post = postRepository.findById(deletePostRequest.getPostId()).orElse(null);
             if (Objects.nonNull(post)) {
+                if (!post.getUser().getUsername().equals(user.getUsername())) {
+                    LOG.warning("This user is not owner this post -- Post: " + mapper.writeValueAsString(post));
+                    return PostResponse.builder()
+                            .message("This user is not owner this post.")
+                            .isSuccess(false)
+                            .build();
+                }
+
                 try {
 
                     postRepository.delete(post);
