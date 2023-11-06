@@ -44,18 +44,18 @@ public class CommentServiceImpl implements CommentService {
                         .build();
             }
 
-            Post post = postService.findById(createCommentRequest.getPostId());
+            Post post = postService.findById(createCommentRequest.getId());
 
             if (Objects.isNull(post)) {
                 LOG.warning("Post not found -- Comment: " + mapper.writeValueAsString(createCommentRequest));
                 return CommentResponse.builder()
                         .isSuccess(false)
-                        .message("Post not found")
+                        .message("Post not found.")
                         .build();
             }
 
             Comment comment = Comment.builder()
-                    .commentContent(createCommentRequest.getContent())
+                    .content(createCommentRequest.getContent())
                     .post(post)
                     .user(user)
                     .build();
@@ -67,14 +67,14 @@ public class CommentServiceImpl implements CommentService {
 
                 return CommentResponse.builder()
                         .isSuccess(true)
-                        .message("Comment created with success")
+                        .message("Comment created with success.")
                         .build();
             } catch (Exception e) {
                 LOG.warning("Comment could not be created -- Comment: " + mapper.writeValueAsString(post)
                         + " -- Username: " + user.getUsername());
                 return CommentResponse.builder()
                         .isSuccess(false)
-                        .message("Comment could not be created")
+                        .message("Comment could not be created.")
                         .build();
             }
 
@@ -96,14 +96,14 @@ public class CommentServiceImpl implements CommentService {
                         .build();
             }
 
-            Comment comment = commentRepository.findById(deleteCommentRequest.getCommentId()).orElse(null);
+            Comment comment = commentRepository.findById(deleteCommentRequest.getId()).orElse(null);
 
 
             if (Objects.nonNull(comment)) {
                 if (!comment.getUser().getUsername().equals(user.getUsername()) &&
                     !comment.getPost().getUser().getUsername().equals(user.getUsername())
                 ) {
-                    LOG.warning("This user is not owner of post or comment -- Post: " + mapper.writeValueAsString(comment)
+                    LOG.warning("This user is not owner of post or comment -- Comment: " + mapper.writeValueAsString(comment)
                             + "-- Username: " + user.getUsername());
                     return CommentResponse.builder()
                             .isSuccess(false)
@@ -119,22 +119,22 @@ public class CommentServiceImpl implements CommentService {
 
                     return CommentResponse.builder()
                             .isSuccess(true)
-                            .message("Comment deleted with success")
+                            .message("Comment deleted with success.")
                             .build();
                 } catch (Exception e) {
                     LOG.warning("Comment could not be deleted -- Comment: " + mapper.writeValueAsString(comment)
                             + " -- Username: " + user.getUsername());
                     return CommentResponse.builder()
                             .isSuccess(false)
-                            .message("Comment could not be deleted")
+                            .message("Comment could not be deleted.")
                             .build();
                 }
             }
-            LOG.warning("Comment not found -- Post: " + mapper.writeValueAsString(deleteCommentRequest)
+            LOG.warning("Comment not found -- Comment: " + mapper.writeValueAsString(deleteCommentRequest)
                     + "-- Username: " + user.getUsername());
             return CommentResponse.builder()
                     .isSuccess(false)
-                    .message("Comment not found")
+                    .message("Comment not found.")
                     .build();
         }
 
@@ -144,8 +144,8 @@ public class CommentServiceImpl implements CommentService {
     private <T> CommentResponse userNotFoundResponse(T T) throws JsonProcessingException {
         LOG.warning("User not found -- Comment: " + mapper.writeValueAsString(T));
         return CommentResponse.builder()
-                .message("User not found")
                 .isSuccess(false)
+                .message("User not found.")
                 .build();
     }
 }
