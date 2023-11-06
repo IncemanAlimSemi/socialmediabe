@@ -13,7 +13,7 @@ import org.springframework.lang.NonNull;
 public class DeletePostRequest {
 
     @NonNull
-    private Long postId;
+    private Long id;
     @NonNull
     private String username;
 }

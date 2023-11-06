@@ -36,14 +36,14 @@ public class PostServiceImpl implements PostService {
             if (!userUtils.isSessionUser(user)) {
                 LOG.warning("This user is not session user -- Post: " + mapper.writeValueAsString(createPostRequest));
                 return PostResponse.builder()
-                        .message("This user is not session user.")
                         .isSuccess(false)
+                        .message("This user is not session user.")
                         .build();
             }
 
             Post post = Post.builder()
-                    .postTitle(createPostRequest.getPostTitle())
-                    .postContent(createPostRequest.getPostContent())
+                    .title(createPostRequest.getTitle())
+                    .content(createPostRequest.getContent())
                     .postLike(0)
                     .postUnlike(0)
                     .user(user)
@@ -56,15 +56,15 @@ public class PostServiceImpl implements PostService {
                         + " -- Username: " + user.getUsername());
 
                 return PostResponse.builder()
-                        .message("Post created with success")
                         .isSuccess(true)
+                        .message("Post created with success.")
                         .build();
             } catch (Exception e) {
                 LOG.warning("Post could not be created -- Post: " + mapper.writeValueAsString(post)
                         + " -- Username: " + user.getUsername());
                 return PostResponse.builder()
-                        .message("Post could not be created")
                         .isSuccess(false)
+                        .message("Post could not be created.")
                         .build();
             }
 
@@ -81,17 +81,17 @@ public class PostServiceImpl implements PostService {
             if (!userUtils.isSessionUser(user)) {
                 LOG.warning("This user is not session user -- Post: " + mapper.writeValueAsString(deletePostRequest));
                 return PostResponse.builder()
-                        .message("This user is not session user.")
                         .isSuccess(false)
+                        .message("This user is not session user.")
                         .build();
             }
-            Post post = postRepository.findById(deletePostRequest.getPostId()).orElse(null);
+            Post post = postRepository.findById(deletePostRequest.getId()).orElse(null);
             if (Objects.nonNull(post)) {
                 if (!post.getUser().getUsername().equals(user.getUsername())) {
                     LOG.warning("This user is not owner this post -- Post: " + mapper.writeValueAsString(post));
                     return PostResponse.builder()
-                            .message("This user is not owner this post.")
                             .isSuccess(false)
+                            .message("This user is not owner this post.")
                             .build();
                 }
 
@@ -102,24 +102,24 @@ public class PostServiceImpl implements PostService {
                     LOG.info("Post deleted with success -- Post: " + mapper.writeValueAsString(post)
                             + " -- Username: " + user.getUsername());
                     return PostResponse.builder()
-                            .message("Post deleted with success")
                             .isSuccess(true)
+                            .message("Post deleted.")
                             .build();
 
                 } catch (Exception e) {
                     LOG.warning("Post could not be deleted -- Post: " + mapper.writeValueAsString(post)
                             + " -- Username: " + user.getUsername());
                     return PostResponse.builder()
-                            .message("Post could not be deleted")
                             .isSuccess(false)
+                            .message("Post could not be deleted.")
                             .build();
                 }
             }
             LOG.warning("Post not found -- Post: " + mapper.writeValueAsString(deletePostRequest)
                     + "-- Username: " + user.getUsername());
             return PostResponse.builder()
-                    .message("Post not found")
                     .isSuccess(false)
+                    .message("Post not found.")
                     .build();
         }
 
@@ -132,10 +132,10 @@ public class PostServiceImpl implements PostService {
     }
 
     private <T> PostResponse userNotFoundResponse(T T) throws JsonProcessingException {
-        LOG.warning("User nor found -- Post: " + mapper.writeValueAsString(T));
+        LOG.warning("User not found -- Post: " + mapper.writeValueAsString(T));
         return PostResponse.builder()
-                .message("User not found")
                 .isSuccess(false)
+                .message("User not found.")
                 .build();
     }
 }

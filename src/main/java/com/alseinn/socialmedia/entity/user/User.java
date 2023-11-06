@@ -26,8 +26,8 @@ public class User extends AbstractUser implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, unique = true)
-    private String mobilePhone;
+    @Column(nullable = false ,unique = true)
+    private String mobileNumber;
 
     @Column(nullable = false, unique = true)
     private String username;
@@ -59,10 +59,10 @@ public class User extends AbstractUser implements UserDetails {
     private Set<User> followings = new HashSet<>();
 
     @Builder
-    public User(String firstname, String lastname, Gender gender, String email, String mobilePhone, String username, String password, Role role) {
+    public User(String firstname, String lastname, Gender gender, String email, String mobileNumber, String username, String password, Role role) {
         super(firstname, lastname, gender);
         this.email = email;
-        this.mobilePhone = mobilePhone;
+        this.mobileNumber = mobileNumber;
         this.username = username;
         this.password = password;
         this.role = role;

@@ -2,7 +2,6 @@ package com.alseinn.socialmedia.entity.post;
 
 import com.alseinn.socialmedia.entity.comment.Comment;
 import com.alseinn.socialmedia.entity.user.User;
-import com.alseinn.socialmedia.request.post.CreatePostRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,7 +9,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -25,9 +23,9 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column
-    private String postTitle;
+    private String title;
     @Column
-    private String postContent;
+    private String content;
     @Column
     private long postLike;
     @Column
