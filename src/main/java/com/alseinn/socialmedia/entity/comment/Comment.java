@@ -1,6 +1,6 @@
-package com.alseinn.socialmedia.entity.post;
+package com.alseinn.socialmedia.entity.comment;
 
-import com.alseinn.socialmedia.entity.comment.Comment;
+import com.alseinn.socialmedia.entity.post.Post;
 import com.alseinn.socialmedia.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -9,33 +9,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "post")
-public class Post {
+@Table(name = "comment")
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column
-    private String title;
-    @Column
-    private String content;
-    @Column
-    private long postLike;
-    @Column
-    private long postUnlike;
+    private String commentContent;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    @JsonIgnore
+    private Post post;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Comment> comments;
-
 }

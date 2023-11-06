@@ -33,7 +33,7 @@ public class PostServiceImpl implements PostService {
         User user = userService.findByUsername(createPostRequest.getUsername());
         if (Objects.nonNull(user)) {
 
-            if (!isSessionUser(user)) {
+            if (!userUtils.isSessionUser(user)) {
                 LOG.warning("This user is not session user -- Post: " + mapper.writeValueAsString(createPostRequest));
                 return PostResponse.builder()
                         .isSuccess(false)
@@ -78,7 +78,7 @@ public class PostServiceImpl implements PostService {
         User user = userService.findByUsername(deletePostRequest.getUsername());
 
         if (Objects.nonNull(user)) {
-            if (!isSessionUser(user)) {
+            if (!userUtils.isSessionUser(user)) {
                 LOG.warning("This user is not session user -- Post: " + mapper.writeValueAsString(deletePostRequest));
                 return PostResponse.builder()
                         .isSuccess(false)
@@ -126,9 +126,9 @@ public class PostServiceImpl implements PostService {
         return userNotFoundResponse(deletePostRequest);
     }
 
-    private boolean isSessionUser(User user) {
-        String sessionUsername = userUtils.getUserFromSecurityContext().getUsername();
-        return Objects.equals(user.getUsername(), sessionUsername);
+    @Override
+    public Post findById(Long id) {
+        return postRepository.findById(id).orElse(null);
     }
 
     private <T> PostResponse userNotFoundResponse(T T) throws JsonProcessingException {
