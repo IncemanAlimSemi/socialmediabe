@@ -15,8 +15,8 @@ public class CreatePostRequest {
     @NonNull
     private String username;
     @NonNull
-    private String postTitle;
+    private String title;
     @NonNull
-    private String postContent;
+    private String content;
 
 }
