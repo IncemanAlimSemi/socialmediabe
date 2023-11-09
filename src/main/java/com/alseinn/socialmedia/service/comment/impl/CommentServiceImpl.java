@@ -96,7 +96,7 @@ public class CommentServiceImpl implements CommentService {
                         .build();
             }
 
-            Comment comment = commentRepository.findById(deleteCommentRequest.getId()).orElse(null);
+            Comment comment = findById(deleteCommentRequest.getId());
 
 
             if (Objects.nonNull(comment)) {

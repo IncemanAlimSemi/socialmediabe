@@ -54,7 +54,6 @@ public class LikeActionServiceImpl implements LikeActionService {
                 LOG.warning("This action id is not found in database -- Action: " + mapper.writeValueAsString(likeActionRequest));
                 return ActionResponse.builder()
                         .isSuccess(false)
-
                         .message("This action id is not found in database.")
                         .build();
             }
