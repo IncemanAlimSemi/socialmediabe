@@ -3,6 +3,7 @@ package com.alseinn.socialmedia.service.like.impl;
 import com.alseinn.socialmedia.dao.user.LikeActionRepository;
 import com.alseinn.socialmedia.entity.like.LikeAction;
 import com.alseinn.socialmedia.entity.like.LikeActionKey;
+import com.alseinn.socialmedia.entity.like.enums.ActionObjectEnum;
 import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.like.LikeActionRequest;
 import com.alseinn.socialmedia.response.like.ActionResponse;
@@ -16,7 +17,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 @Service
@@ -45,16 +48,10 @@ public class LikeActionServiceImpl implements LikeActionService {
                         .build();
             }
 
-            Boolean isNull = switch (likeActionRequest.getType()){
-                case POST -> Objects.isNull(postService.findById(likeActionRequest.getId()));
-                case COMMENT -> Objects.isNull(commentService.findById(likeActionRequest.getId()));
-            };
-
-            if (isNull) {
+            if (isActionObjectNotFoundInDatabase(likeActionRequest.getType(), likeActionRequest.getId())) {
                 LOG.warning("This action id is not found in database -- Action: " + mapper.writeValueAsString(likeActionRequest));
                 return ActionResponse.builder()
                         .isSuccess(false)
-
                         .message("This action id is not found in database.")
                         .build();
             }
@@ -117,5 +114,14 @@ public class LikeActionServiceImpl implements LikeActionService {
                 .isSuccess(false)
                 .message("User not found.")
                 .build();
+    }
+
+    private Boolean isActionObjectNotFoundInDatabase(ActionObjectEnum type, Long id) {
+        final HashMap<ActionObjectEnum, Function<Long, Boolean>> map = new HashMap<>(){{
+            put(ActionObjectEnum.POST, id -> Objects.isNull(postService.findById(id)));
+            put(ActionObjectEnum.COMMENT, id -> Objects.isNull(commentService.findById(id)));
+        }};
+
+        return map.get(type).apply(id);
     }
 }
