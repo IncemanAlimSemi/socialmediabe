@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -58,6 +59,7 @@ public class CommentServiceImpl implements CommentService {
                     .content(createCommentRequest.getContent())
                     .post(post)
                     .user(user)
+                    .date(new Date(System.currentTimeMillis()))
                     .build();
 
             try {
