@@ -141,6 +141,11 @@ public class CommentServiceImpl implements CommentService {
         return userNotFoundResponse(deleteCommentRequest);
     }
 
+    @Override
+    public Comment findById(Long id) {
+        return commentRepository.findById(id).orElse(null);
+    }
+
     private <T> CommentResponse userNotFoundResponse(T T) throws JsonProcessingException {
         LOG.warning("User not found -- Comment: " + mapper.writeValueAsString(T));
         return CommentResponse.builder()
