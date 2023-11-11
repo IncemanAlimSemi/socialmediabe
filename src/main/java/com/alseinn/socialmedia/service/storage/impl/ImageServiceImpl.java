@@ -2,40 +2,63 @@ package com.alseinn.socialmedia.service.storage.impl;
 
 import com.alseinn.socialmedia.dao.image.ImageRepository;
 import com.alseinn.socialmedia.entity.image.Image;
-import com.alseinn.socialmedia.service.post.impl.PostServiceImpl;
+import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
+import com.alseinn.socialmedia.response.image.ImageResponse;
 import com.alseinn.socialmedia.service.storage.ImageService;
 import com.alseinn.socialmedia.utils.ImageUtils;
+import com.alseinn.socialmedia.utils.ResponseUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Base64;
 import java.util.Objects;
 import java.util.logging.Logger;
-import java.util.zip.*;
+
+import static com.alseinn.socialmedia.utils.contants.AppTRConstants.LOCALIZATION;
+import static com.alseinn.socialmedia.utils.contants.AppTRConstants.PICTURE;
 
 @Service
 @RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService {
 
     private final ImageRepository imageRepository;
-    private static final Logger LOG = Logger.getLogger(PostServiceImpl.class.getName());
-
+    private final ResponseUtils responseUtils;
+    private static final Logger LOG = Logger.getLogger(ImageServiceImpl.class.getName());
 
     @Override
-    public Image uploadImage(MultipartFile file) throws IOException {
-        if (Objects.isNull(file)) {
-            return null;
+    public ImageResponse uploadImage(MultipartFile file) throws IOException {
+        if (Objects.nonNull(file)) {
+            try{
+                Image image = imageRepository.save(Image.builder()
+                        .name(StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())))
+                        .type(file.getContentType())
+                        .imageData(ImageUtils.compressImage(file.getBytes()))
+                        .build());
+
+                return ImageResponse.imageResponseBuilder()
+                        .isSuccess(true)
+                        .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.saved.with.success"), PICTURE))
+                        .image(image)
+                        .build();
+            }catch (Exception e) {
+                LOG.warning(MessageFormat.format("Error occurred while uploading image: {0} : {1}"
+                        , file.getOriginalFilename(), e.getMessage()));
+                return ImageResponse.imageResponseBuilder()
+                        .isSuccess(false)
+                        .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.could.not.be.saved"), PICTURE))
+                        .build();
+
+            }
         }
-        return imageRepository.save(Image.builder()
-                .name(StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())))
-                .type(file.getContentType())
-                .imageData(ImageUtils.compressImage(file.getBytes()))
-                .build());
+
+       return ImageResponse.imageResponseBuilder()
+                .isSuccess(false)
+                .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.is.empty"), PICTURE))
+                .build();
+
     }
 
     @Override
@@ -48,14 +71,23 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public void deleteImage(Image image) {
-        try {
-            imageRepository.delete(image);
-            LOG.warning("Image deleted successfully");
-        } catch (Exception e) {
-            LOG.warning(MessageFormat.format("Error occurred while deleting image: {0} : {1}", image.getId(), e.getMessage()));
+    public GeneralInformationResponse deleteImage(Image image) throws IOException {
+        if (Objects.nonNull(image)){
+            try {
+                imageRepository.delete(image);
+                LOG.warning("Image deleted successfully");
+                return responseUtils.createGeneralInformationResponse(true,
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.deleted.with.success"), PICTURE));
+            } catch (Exception e) {
+                LOG.warning("Error occurred while deleting image: " + e);
+                return responseUtils.createGeneralInformationResponse(false,
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.could.not.be.deleted"), PICTURE));
+            }
         }
-    }
 
+        return responseUtils.createGeneralInformationResponse(false,
+                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.is.empty"), PICTURE));
+
+    }
 
 }

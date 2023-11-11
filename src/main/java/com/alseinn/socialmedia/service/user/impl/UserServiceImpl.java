@@ -4,14 +4,15 @@ import com.alseinn.socialmedia.dao.user.UserRepository;
 import com.alseinn.socialmedia.entity.image.Image;
 import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.image.UploadImageRequest;
-import com.alseinn.socialmedia.response.GeneralResponse;
 import com.alseinn.socialmedia.response.follow.FollowDataResponse;
+import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import com.alseinn.socialmedia.response.user.UserDetailResponse;
 import com.alseinn.socialmedia.response.follow.UserFollowersResponse;
 import com.alseinn.socialmedia.response.follow.UserFollowingsResponse;
 import com.alseinn.socialmedia.service.post.impl.PostServiceImpl;
 import com.alseinn.socialmedia.service.storage.ImageService;
 import com.alseinn.socialmedia.service.user.UserService;
+import com.alseinn.socialmedia.utils.ResponseUtils;
 import com.alseinn.socialmedia.utils.UserUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,11 +21,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static com.alseinn.socialmedia.utils.contants.AppTRConstants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,8 @@ public class UserServiceImpl implements UserService {
     private final ObjectMapper mapper;
     private final UserUtils userUtils;
     private final ImageService imageService;
+    private final ResponseUtils responseUtils;
+
     private static final Logger LOG = Logger.getLogger(PostServiceImpl.class.getName());
 
     @Override
@@ -42,24 +48,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public GeneralResponse getUserDetail(String username) throws IOException {
+    public GeneralInformationResponse getProfile(String username) throws IOException {
         User user = findByUsername(username);
-        if (Objects.isNull(user)) {
-            LOG.warning("User not found! : " + username);
-            return GeneralResponse.builder()
-                    .isSuccess(false)
-                    .message("User not found!")
+        if (Objects.nonNull(user)) {
+
+            return UserDetailResponse.userDetailResponseBuilder()
+                    .isSuccess(true)
+                    .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION)
+                            .getProperty("user.details.listed.with.success"), USER))
+                    .username(user.getUsername())
+                    .firstname(user.getFirstname())
+                    .lastname(user.getLastname())
+                    .email(user.getEmail())
+                    .mobileNumber(user.getMobileNumber())
+                    .profileImage(Objects.nonNull(user.getProfileImage()) ? imageService.getImage(user.getProfileImage().getId()) : null)
+                    .role(user.getRole())
                     .build();
         }
-        return UserDetailResponse.builder()
-                .username(user.getUsername())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .email(user.getEmail())
-                .mobileNumber(user.getMobileNumber())
-                .profileImage(Objects.nonNull(user.getProfileImage()) ? imageService.getImage(user.getId()) : null)
-                .role(user.getRole())
-                .build();
+
+        LOG.warning("User not found! : " + username);
+        return responseUtils.createGeneralInformationResponse(false,
+                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"), PICTURE));
     }
 
     @Override
@@ -84,52 +93,58 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Transactional
     @Override
-    public GeneralResponse saveProfilePicture(UploadImageRequest uploadImageRequest) throws IOException {
+    public GeneralInformationResponse updateProfilePicture(UploadImageRequest uploadImageRequest) throws IOException {
         User user = userUtils.getUserFromSecurityContext();
         if (Objects.nonNull(user)) {
-            if (Objects.nonNull(user.getProfileImage())) {
-                imageService.deleteImage(user.getProfileImage());
+            try{
+                if (Objects.nonNull(user.getProfileImage())) {
+                    imageService.deleteImage(user.getProfileImage());
+                }
+                user.setProfileImage(imageService.uploadImage(uploadImageRequest.getImage()).getImage());
+                userRepository.save(user);
+                return responseUtils.createGeneralInformationResponse(true,
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("profile.picture.saved.with.success"), PICTURE));
+
+            }catch (Exception e){
+                LOG.warning("Error occurred while saving profile picture: " + e);
+                return responseUtils.createGeneralInformationResponse(false,
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("profile.picture.picture.could.not.be.saved"), PICTURE));
             }
-            user.setProfileImage(imageService.uploadImage(uploadImageRequest.getImage()));
-            userRepository.save(user);
-            return GeneralResponse.builder()
-                    .isSuccess(true)
-                    .message("Profile picture saved with success.")
-                    .build();
+
         }
-        return GeneralResponse.builder()
-                .isSuccess(false)
-                .message("Profile picture could not be saved.")
-                .build();
+        return responseUtils.createGeneralInformationResponse(false,
+                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"), PICTURE));
+
     }
 
     @Transactional
     @Override
-    public GeneralResponse removeProfilePicture() {
+    public GeneralInformationResponse removeProfilePicture() throws IOException {
         User user = userUtils.getUserFromSecurityContext();
 
-        if (Objects.isNull(user)) {
-            return GeneralResponse.builder()
-                    .isSuccess(false)
-                    .message("User not found.")
-                    .build();
+        if (Objects.nonNull(user)) {
+            try {
+                if (Objects.nonNull(user.getProfileImage())) {
+                    removeProfileImage(user);
+                    LOG.warning("Profile picture removed successfully.");
+                    return responseUtils.createGeneralInformationResponse(true,
+                            MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("profile.picture.removed.with.success"), PICTURE));
+                }
+                LOG.warning("Profile picture not exist.");
+                return responseUtils.createGeneralInformationResponse(false,
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("profile.picture.not.exist"), PICTURE));
+            } catch (Exception e) {
+                LOG.warning("Error occurred while removing profile picture: " + e);
+
+                return responseUtils.createGeneralInformationResponse(false,
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("profile.picture.could.not.be.removed"), PICTURE));
+            }
         }
 
-        try {
-            removeProfileImage(user);
-            return GeneralResponse.builder()
-                    .isSuccess(true)
-                    .message("Profile picture removed successfully.")
-                    .build();
-        } catch (Exception e) {
-            LOG.warning("Error occurred while removing profile picture: " + e);
-
-            return GeneralResponse.builder()
-                    .isSuccess(false)
-                    .message("Error occurred while removing profile picture.")
-                    .build();
-        }
+        return responseUtils.createGeneralInformationResponse(false,
+                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"), PICTURE));
     }
 
     private UserFollowersResponse getUserFollowersResponse(User user) {
@@ -154,6 +169,7 @@ public class UserServiceImpl implements UserService {
                 .isSuccess(isSuccess)
                 .build();
     }
+
     public UserFollowingsResponse createUserFollowingsResponse(Boolean isSuccess, Set<FollowDataResponse> followings) {
         return UserFollowingsResponse.builder()
                 .followings(followings)
@@ -161,7 +177,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-    private void removeProfileImage(User user) {
+    private void removeProfileImage(User user) throws IOException {
         Image profileImage = user.getProfileImage();
 
         if (Objects.nonNull(profileImage)) {

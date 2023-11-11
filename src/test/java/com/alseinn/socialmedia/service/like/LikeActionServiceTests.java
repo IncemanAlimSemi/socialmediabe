@@ -60,9 +60,9 @@ public class LikeActionServiceTests {
         Boolean isSuccess = true;
         String message = actionObjectType + " liked.";
         LikeActionRequest likeActionRequest = new LikeActionRequest(0, actionObjectType, username);
-        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER);
-        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>());
-        Comment comment = new Comment(0, "content", post, user);
+        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER, null);
+        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>(), null);
+        Comment comment = new Comment(0, "content", post, user, null);
         LikeActionKey likeActionKey = new LikeActionKey(username, actionObjectType, 0);
         LikeAction likeAction = new LikeAction(likeActionKey, true);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
@@ -97,8 +97,8 @@ public class LikeActionServiceTests {
         Boolean isSuccess = true;
         String message = actionObjectType + " liked.";
         LikeActionRequest likeActionRequest = new LikeActionRequest(0, actionObjectType, username);
-        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER);
-        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>());
+        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER, null);
+        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>(), null);
         LikeActionKey likeActionKey = new LikeActionKey(username, actionObjectType, 0);
         LikeAction likeAction = new LikeAction(likeActionKey, true);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
@@ -133,9 +133,9 @@ public class LikeActionServiceTests {
         Boolean isSuccess = true;
         String message = actionObjectType + " unliked.";
         LikeActionRequest likeActionRequest = new LikeActionRequest(0, actionObjectType, username);
-        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER);
-        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>());
-        Comment comment = new Comment(0, "content", post, user);
+        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER, null);
+        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>(), null);
+        Comment comment = new Comment(0, "content", post, user, null);
         LikeActionKey likeActionKey = new LikeActionKey(username, actionObjectType, 0);
         LikeAction likeAction = new LikeAction(likeActionKey, true);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
@@ -169,8 +169,8 @@ public class LikeActionServiceTests {
         Boolean isSuccess = true;
         String message = actionObjectType + " unliked.";
         LikeActionRequest likeActionRequest = new LikeActionRequest(0, actionObjectType, username);
-        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER);
-        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>());
+        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER, null);
+        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>(), null);
         LikeActionKey likeActionKey = new LikeActionKey(username, actionObjectType, 0);
         LikeAction likeAction = new LikeAction(likeActionKey, true);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
@@ -228,7 +228,7 @@ public class LikeActionServiceTests {
         Boolean isSuccess = false;
         String message = "This user is not session user.";
         LikeActionRequest likeActionRequest = new LikeActionRequest(0, actionObjectType, username);
-        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER);
+        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -255,7 +255,7 @@ public class LikeActionServiceTests {
         Boolean isSuccess = false;
         String message = "This action id is not found in database.";
         LikeActionRequest likeActionRequest = new LikeActionRequest(0, actionObjectType, username);
-        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER);
+        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -284,7 +284,7 @@ public class LikeActionServiceTests {
         Boolean isSuccess = false;
         String message = "This action id is not found in database.";
         LikeActionRequest likeActionRequest = new LikeActionRequest(0, actionObjectType, username);
-        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER);
+        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -314,8 +314,8 @@ public class LikeActionServiceTests {
         Boolean isSuccess = false;
         String message = actionObjectType + " not liked/unliked.";
         LikeActionRequest likeActionRequest = new LikeActionRequest(0, actionObjectType, username);
-        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER);
-        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>());
+        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER,null);
+        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>(),null);
         LikeActionKey likeActionKey = new LikeActionKey(username, actionObjectType, 0);
         LikeAction likeAction = new LikeAction(likeActionKey, true);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
@@ -350,8 +350,8 @@ public class LikeActionServiceTests {
         Boolean isSuccess = false;
         String message = actionObjectType + " not liked/unliked.";
         LikeActionRequest likeActionRequest = new LikeActionRequest(0, actionObjectType, username);
-        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER);
-        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>());
+        User user = new User("test", "user", Gender.MAN, "aaa@gmail.com", "5555555555", username, "123", Role.USER,null);
+        Post post = new Post(0, "title", "content", 0, 0, user, new ArrayList<>(),null);
         LikeActionKey likeActionKey = new LikeActionKey(username, actionObjectType, 0);
         LikeAction likeAction = new LikeAction(likeActionKey, true);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);

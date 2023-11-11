@@ -1,9 +1,9 @@
 package com.alseinn.socialmedia.controller.user;
 
 import com.alseinn.socialmedia.request.image.UploadImageRequest;
-import com.alseinn.socialmedia.response.GeneralResponse;
 import com.alseinn.socialmedia.response.follow.UserFollowersResponse;
 import com.alseinn.socialmedia.response.follow.UserFollowingsResponse;
+import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import com.alseinn.socialmedia.service.user.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/profile/{username}")
-    public ResponseEntity<GeneralResponse> getProfile(@PathVariable String username) throws IOException {
-        return ResponseEntity.ok(userService.getUserDetail(username));
+    public ResponseEntity<GeneralInformationResponse> getProfile(@PathVariable String username) throws IOException {
+        return ResponseEntity.ok(userService.getProfile(username));
     }
 
     @GetMapping("/followers/{username}")
@@ -35,12 +35,12 @@ public class UserController {
 
 
     @GetMapping("/picture/upload")
-    public ResponseEntity<GeneralResponse> saveProfilePicture(@ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
-        return ResponseEntity.ok(userService.saveProfilePicture(uploadImageRequest));
+    public ResponseEntity<GeneralInformationResponse> saveProfilePicture(@ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
+        return ResponseEntity.ok(userService.updateProfilePicture(uploadImageRequest));
     }
 
     @GetMapping("/picture/remove")
-    public ResponseEntity<GeneralResponse> removeProfilePicture() {
+    public ResponseEntity<GeneralInformationResponse> removeProfilePicture() throws IOException {
         return ResponseEntity.ok(userService.removeProfilePicture());
     }
 
