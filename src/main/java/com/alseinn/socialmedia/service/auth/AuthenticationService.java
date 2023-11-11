@@ -1,17 +1,21 @@
 package com.alseinn.socialmedia.service.auth;
 
 import com.alseinn.socialmedia.dao.user.UserRepository;
+import com.alseinn.socialmedia.entity.image.Image;
 import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.entity.user.enums.Role;
 import com.alseinn.socialmedia.request.auth.AuthenticationRequest;
 import com.alseinn.socialmedia.request.auth.RegisterRequest;
 import com.alseinn.socialmedia.response.auth.AuthenticationResponse;
+import com.alseinn.socialmedia.service.storage.ImageService;
+import com.alseinn.socialmedia.utils.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Service
@@ -22,6 +26,8 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+
 
     public AuthenticationResponse register(RegisterRequest request) {
         Optional<User> dbUser = userRepository.findByUsername(request.getUsername());

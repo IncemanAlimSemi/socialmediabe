@@ -1,6 +1,7 @@
 package com.alseinn.socialmedia.entity.user;
 
 import com.alseinn.socialmedia.entity.comment.Comment;
+import com.alseinn.socialmedia.entity.image.Image;
 import com.alseinn.socialmedia.entity.post.Post;
 import com.alseinn.socialmedia.entity.user.enums.Gender;
 import com.alseinn.socialmedia.entity.user.enums.Role;
@@ -35,6 +36,9 @@ public class User extends AbstractUser implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    private Image profileImage;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -60,13 +64,15 @@ public class User extends AbstractUser implements UserDetails {
     private Set<User> followings = new HashSet<>();
 
     @Builder
-    public User(String firstname, String lastname, Gender gender, String email, String mobileNumber, String username, String password, Role role) {
+    public User(String firstname, String lastname, Gender gender, String email, String mobileNumber,
+                String username, String password, Role role, Image profileImage) {
         super(firstname, lastname, gender);
         this.email = email;
         this.mobileNumber = mobileNumber;
         this.username = username;
         this.password = password;
         this.role = role;
+        this.profileImage = profileImage;
     }
 
     @Override
