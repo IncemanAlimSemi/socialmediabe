@@ -5,8 +5,6 @@ import com.alseinn.socialmedia.response.user.UserFollowersResponse;
 import com.alseinn.socialmedia.response.user.UserFollowingsResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import java.util.Set;
-
 public interface UserService {
     User findByUsername(String username);
 

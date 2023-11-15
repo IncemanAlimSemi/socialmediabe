@@ -2,7 +2,6 @@ package com.alseinn.socialmedia.service.user.impl;
 
 import com.alseinn.socialmedia.dao.user.UserRepository;
 import com.alseinn.socialmedia.entity.user.User;
-import com.alseinn.socialmedia.response.post.PostResponse;
 import com.alseinn.socialmedia.response.user.FollowDataResponse;
 import com.alseinn.socialmedia.response.user.UserFollowersResponse;
 import com.alseinn.socialmedia.response.user.UserFollowingsResponse;
@@ -11,7 +10,6 @@ import com.alseinn.socialmedia.service.user.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -40,10 +38,7 @@ public class UserServiceImpl implements UserService {
             return getUserFollowersResponse(user);
         }
         LOG.warning("User can not be null! : " + mapper.writeValueAsString(username));
-        return UserFollowersResponse.builder()
-                .followers(new HashSet<>(0))
-                .isSuccess(false)
-                .build();
+        return createUserFollowersResponse(false, new HashSet<>(0));
 
     }
 
@@ -54,10 +49,8 @@ public class UserServiceImpl implements UserService {
             return getUserFollowingsResponse(user);
         }
         LOG.warning("User can not be null! : " + mapper.writeValueAsString(username));
-        return UserFollowingsResponse.builder()
-                .followings(new HashSet<>(0))
-                .isSuccess(false)
-                .build();
+        return createUserFollowingsResponse(false, new HashSet<>(0));
+
     }
 
     private UserFollowersResponse getUserFollowersResponse(User user) {
@@ -65,10 +58,7 @@ public class UserServiceImpl implements UserService {
                 .username(follower.getUsername())
                 .build()).collect(Collectors.toSet());
 
-        return UserFollowersResponse.builder()
-                .followers(userFollowersDataResponses)
-                .isSuccess(true)
-                .build();
+        return createUserFollowersResponse(true, userFollowersDataResponses);
     }
 
     private UserFollowingsResponse getUserFollowingsResponse(User user) {
@@ -76,9 +66,19 @@ public class UserServiceImpl implements UserService {
                 .username(following.getUsername())
                 .build()).collect(Collectors.toSet());
 
+        return createUserFollowingsResponse(true, userFollowingsDataResponses);
+    }
+
+    public UserFollowersResponse createUserFollowersResponse(Boolean isSuccess, Set<FollowDataResponse> followers) {
+        return UserFollowersResponse.builder()
+                .followers(followers)
+                .isSuccess(isSuccess)
+                .build();
+    }
+    public UserFollowingsResponse createUserFollowingsResponse(Boolean isSuccess, Set<FollowDataResponse> followings) {
         return UserFollowingsResponse.builder()
-                .followings(userFollowingsDataResponses)
-                .isSuccess(true)
+                .followings(followings)
+                .isSuccess(isSuccess)
                 .build();
     }
 

@@ -3,14 +3,15 @@ package com.alseinn.socialmedia.service.comment;
 import com.alseinn.socialmedia.entity.comment.Comment;
 import com.alseinn.socialmedia.request.comment.CreateCommentRequest;
 import com.alseinn.socialmedia.request.comment.DeleteCommentRequest;
-import com.alseinn.socialmedia.response.comment.CommentResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
+
+import java.io.IOException;
 
 public interface CommentService {
 
-    CommentResponse createComment(CreateCommentRequest createCommentRequest) throws JsonProcessingException;
+    GeneralInformationResponse createComment(CreateCommentRequest createCommentRequest) throws IOException;
 
-    CommentResponse deleteComment(DeleteCommentRequest deleteCommentRequest) throws JsonProcessingException;
+    GeneralInformationResponse deleteComment(DeleteCommentRequest deleteCommentRequest) throws IOException;
 
     Comment findById(Long id);
 }

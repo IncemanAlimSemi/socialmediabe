@@ -1,4 +1,4 @@
-package com.alseinn.socialmedia.response.user;
+package com.alseinn.socialmedia.response.general;
 
 import com.alseinn.socialmedia.response.concrete.AbstractResponse;
 import lombok.*;
@@ -8,6 +8,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FollowDataResponse extends AbstractResponse {
-    private String username;
+public class GeneralInformationResponse extends AbstractResponse {
+    private Boolean isSuccess;
+    private String message;
 }
