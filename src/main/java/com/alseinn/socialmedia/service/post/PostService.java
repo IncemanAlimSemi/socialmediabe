@@ -3,13 +3,14 @@ package com.alseinn.socialmedia.service.post;
 import com.alseinn.socialmedia.entity.post.Post;
 import com.alseinn.socialmedia.request.post.DeletePostRequest;
 import com.alseinn.socialmedia.request.post.CreatePostRequest;
-import com.alseinn.socialmedia.response.post.PostResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
+
+import java.io.IOException;
 
 public interface PostService {
 
-    PostResponse createPost(CreatePostRequest createPostRequest) throws JsonProcessingException;
-    PostResponse deletePost(DeletePostRequest deletePostRequest) throws JsonProcessingException;
+    GeneralInformationResponse createPost(CreatePostRequest createPostRequest) throws IOException;
+    GeneralInformationResponse deletePost(DeletePostRequest deletePostRequest) throws IOException;
     Post findById(Long id);
 
 }

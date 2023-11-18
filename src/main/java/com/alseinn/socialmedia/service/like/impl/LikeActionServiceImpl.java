@@ -6,21 +6,25 @@ import com.alseinn.socialmedia.entity.like.LikeActionKey;
 import com.alseinn.socialmedia.entity.like.enums.ActionObjectEnum;
 import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.like.LikeActionRequest;
-import com.alseinn.socialmedia.response.like.ActionResponse;
+import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import com.alseinn.socialmedia.service.comment.CommentService;
 import com.alseinn.socialmedia.service.like.LikeActionService;
 import com.alseinn.socialmedia.service.post.PostService;
 import com.alseinn.socialmedia.service.user.UserService;
+import com.alseinn.socialmedia.utils.ResponseUtils;
 import com.alseinn.socialmedia.utils.UserUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.logging.Logger;
+
+import static com.alseinn.socialmedia.utils.contants.AppTRConstants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,28 +36,23 @@ public class LikeActionServiceImpl implements LikeActionService {
     private final PostService postService;
     private final CommentService commentService;
     private final LikeActionRepository likeActionRepository;
+    private final ResponseUtils responseUtils;
 
     private static final Logger LOG = Logger.getLogger(LikeActionServiceImpl.class.getName());
 
     @Override
-    public ActionResponse like(LikeActionRequest likeActionRequest) throws JsonProcessingException {
+    public GeneralInformationResponse like(LikeActionRequest likeActionRequest) throws IOException {
         User user = userService.findByUsername(likeActionRequest.getUsername());
 
         if (Objects.nonNull(user)) {
             if (!userUtils.isSessionUser(user)) {
                 LOG.warning("This user is not session user -- Action: " + mapper.writeValueAsString(likeActionRequest));
-                return ActionResponse.builder()
-                        .isSuccess(false)
-                        .message("This user is not session user.")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.session.user"));
             }
 
             if (isActionObjectNotFoundInDatabase(likeActionRequest.getType(), likeActionRequest.getId())) {
                 LOG.warning("This action id is not found in database -- Action: " + mapper.writeValueAsString(likeActionRequest));
-                return ActionResponse.builder()
-                        .isSuccess(false)
-                        .message("This action id is not found in database.")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("this.id.is.not.found.in.database"), ACTION));
             }
 
             LikeActionKey likeActionKey = LikeActionKey.builder()
@@ -75,32 +74,24 @@ public class LikeActionServiceImpl implements LikeActionService {
 
                     LOG.info("This " + likeActionRequest.getType().toString() + " liked with success -- Action: "
                             + mapper.writeValueAsString(likeActionRequest));
-                    return ActionResponse.builder()
-                            .isSuccess(true)
-                            .message(likeActionRequest.getType().toString() + " liked.")
-                            .build();
+                    return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("liked"), likeActionRequest.getType().toString()));
                 } else {
                     likeActionRepository.delete(likeAction);
 
                     LOG.info("This " + likeActionRequest.getType().toString() + " unliked with success -- Action: "
                             + mapper.writeValueAsString(likeActionRequest));
-                    return ActionResponse.builder()
-                            .isSuccess(true)
-                            .message(likeActionRequest.getType().toString() + " unliked.")
-                            .build();
+                    return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("unliked"), likeActionRequest.getType().toString()));
                 }
             } catch (Exception e) {
                 LOG.warning("This " + likeActionRequest.getType().toString() + " not liked/unliked -- Action: "
                         + mapper.writeValueAsString(likeActionRequest));
-                return ActionResponse.builder()
-                        .isSuccess(false)
-                        .message(likeActionRequest.getType().toString() + " not liked/unliked.")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("liked.unliked"), likeActionRequest.getType().toString()));
             }
 
         }
 
-        return userNotFoundResponse(likeActionRequest);
+        LOG.warning("User not found -- Action: " + mapper.writeValueAsString(likeActionRequest));
+        return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"));
     }
 
     @Override
@@ -108,16 +99,8 @@ public class LikeActionServiceImpl implements LikeActionService {
         return likeActionRepository.findById(id).orElse(null);
     }
 
-    private <T> ActionResponse userNotFoundResponse(T T) throws JsonProcessingException {
-        LOG.warning("User not found -- Action: " + mapper.writeValueAsString(T));
-        return ActionResponse.builder()
-                .isSuccess(false)
-                .message("User not found.")
-                .build();
-    }
-
     private Boolean isActionObjectNotFoundInDatabase(ActionObjectEnum type, Long id) {
-        final HashMap<ActionObjectEnum, Function<Long, Boolean>> map = new HashMap<>(){{
+        final HashMap<ActionObjectEnum, Function<Long, Boolean>> map = new HashMap<>() {{
             put(ActionObjectEnum.POST, id -> Objects.isNull(postService.findById(id)));
             put(ActionObjectEnum.COMMENT, id -> Objects.isNull(commentService.findById(id)));
         }};

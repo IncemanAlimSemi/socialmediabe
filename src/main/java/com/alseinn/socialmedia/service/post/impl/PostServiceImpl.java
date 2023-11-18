@@ -5,18 +5,22 @@ import com.alseinn.socialmedia.dao.user.PostRepository;
 import com.alseinn.socialmedia.entity.post.Post;
 import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.post.CreatePostRequest;
-import com.alseinn.socialmedia.response.post.PostResponse;
+import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import com.alseinn.socialmedia.service.post.PostService;
 import com.alseinn.socialmedia.service.user.UserService;
+import com.alseinn.socialmedia.utils.ResponseUtils;
 import com.alseinn.socialmedia.utils.UserUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.logging.Logger;
+
+import static com.alseinn.socialmedia.utils.contants.AppTRConstants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,20 +30,19 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final ObjectMapper mapper;
     private final UserUtils userUtils;
+    private final ResponseUtils responseUtils;
 
     private static final Logger LOG = Logger.getLogger(PostServiceImpl.class.getName());
 
     @Override
-    public PostResponse createPost(CreatePostRequest createPostRequest) throws JsonProcessingException {
+    public GeneralInformationResponse createPost(CreatePostRequest createPostRequest) throws IOException {
         User user = userService.findByUsername(createPostRequest.getUsername());
+
         if (Objects.nonNull(user)) {
 
             if (!userUtils.isSessionUser(user)) {
                 LOG.warning("This user is not session user -- Post: " + mapper.writeValueAsString(createPostRequest));
-                return PostResponse.builder()
-                        .isSuccess(false)
-                        .message("This user is not session user.")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.session.user"));
             }
 
             Post post = Post.builder()
@@ -57,87 +60,59 @@ public class PostServiceImpl implements PostService {
                 LOG.info("Post created with success -- Post: " + mapper.writeValueAsString(post)
                         + " -- Username: " + user.getUsername());
 
-                return PostResponse.builder()
-                        .isSuccess(true)
-                        .message("Post created with success.")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("created.with.success"), POST));
             } catch (Exception e) {
                 LOG.warning("Post could not be created -- Post: " + mapper.writeValueAsString(post)
                         + " -- Username: " + user.getUsername());
-                return PostResponse.builder()
-                        .isSuccess(false)
-                        .message("Post could not be created.")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.created"), POST));
             }
 
         }
 
-        return userNotFoundResponse(createPostRequest);
+        LOG.warning("User not found -- Post: " + mapper.writeValueAsString(createPostRequest));
+        return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"));
     }
 
     @Override
-    public PostResponse deletePost(DeletePostRequest deletePostRequest) throws JsonProcessingException {
+    public GeneralInformationResponse deletePost(DeletePostRequest deletePostRequest) throws IOException {
         User user = userService.findByUsername(deletePostRequest.getUsername());
 
         if (Objects.nonNull(user)) {
             if (!userUtils.isSessionUser(user)) {
                 LOG.warning("This user is not session user -- Post: " + mapper.writeValueAsString(deletePostRequest));
-                return PostResponse.builder()
-                        .isSuccess(false)
-                        .message("This user is not session user.")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.session.user"));
             }
             Post post = postRepository.findById(deletePostRequest.getId()).orElse(null);
             if (Objects.nonNull(post)) {
                 if (!post.getUser().getUsername().equals(user.getUsername())) {
                     LOG.warning("This user is not owner this post -- Post: " + mapper.writeValueAsString(post));
-                    return PostResponse.builder()
-                            .isSuccess(false)
-                            .message("This user is not owner this post.")
-                            .build();
+                    return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.owner.this.post"));
                 }
 
                 try {
-
                     postRepository.delete(post);
 
                     LOG.info("Post deleted with success -- Post: " + mapper.writeValueAsString(post)
                             + " -- Username: " + user.getUsername());
-                    return PostResponse.builder()
-                            .isSuccess(true)
-                            .message("Post deleted.")
-                            .build();
 
+                    return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("deleted.with.success"), POST));
                 } catch (Exception e) {
                     LOG.warning("Post could not be deleted -- Post: " + mapper.writeValueAsString(post)
                             + " -- Username: " + user.getUsername());
-                    return PostResponse.builder()
-                            .isSuccess(false)
-                            .message("Post could not be deleted.")
-                            .build();
+                    return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.deleted"), POST));
                 }
             }
             LOG.warning("Post not found -- Post: " + mapper.writeValueAsString(deletePostRequest)
                     + "-- Username: " + user.getUsername());
-            return PostResponse.builder()
-                    .isSuccess(false)
-                    .message("Post not found.")
-                    .build();
+            return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.found"), POST));
         }
 
-        return userNotFoundResponse(deletePostRequest);
+        LOG.warning("User not found -- Post: " + mapper.writeValueAsString(deletePostRequest));
+        return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"));
     }
 
     @Override
     public Post findById(Long id) {
         return postRepository.findById(id).orElse(null);
-    }
-
-    private <T> PostResponse userNotFoundResponse(T T) throws JsonProcessingException {
-        LOG.warning("User not found -- Post: " + mapper.writeValueAsString(T));
-        return PostResponse.builder()
-                .isSuccess(false)
-                .message("User not found.")
-                .build();
     }
 }
