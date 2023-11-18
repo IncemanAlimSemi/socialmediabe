@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Objects;
@@ -50,6 +51,7 @@ public class PostServiceImpl implements PostService {
                     .postLike(0)
                     .postUnlike(0)
                     .user(user)
+                    .date(new Date(System.currentTimeMillis()))
                     .build();
 
             try {
