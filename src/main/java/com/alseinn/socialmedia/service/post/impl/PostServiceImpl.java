@@ -19,6 +19,8 @@ import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.logging.Logger;
 
+import static com.alseinn.socialmedia.utils.contants.AppTRConstants.*;
+
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
@@ -28,9 +30,6 @@ public class PostServiceImpl implements PostService {
     private final ObjectMapper mapper;
     private final UserUtils userUtils;
     private final ResponseUtils responseUtils;
-
-    private static final String localization = "tr";
-    private static final String POST = "Post";
 
     private static final Logger LOG = Logger.getLogger(PostServiceImpl.class.getName());
 
@@ -42,7 +41,7 @@ public class PostServiceImpl implements PostService {
 
             if (!userUtils.isSessionUser(user)) {
                 LOG.warning("This user is not session user -- Post: " + mapper.writeValueAsString(createPostRequest));
-                return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(localization).getProperty("this.user.is.not.session.user"));
+                return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.session.user"));
             }
 
             Post post = Post.builder()
@@ -59,17 +58,17 @@ public class PostServiceImpl implements PostService {
                 LOG.info("Post created with success -- Post: " + mapper.writeValueAsString(post)
                         + " -- Username: " + user.getUsername());
 
-                return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(localization).getProperty("created.with.success"), POST));
+                return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("created.with.success"), POST));
             } catch (Exception e) {
                 LOG.warning("Post could not be created -- Post: " + mapper.writeValueAsString(post)
                         + " -- Username: " + user.getUsername());
-                return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(localization).getProperty("could.not.be.created"), POST));
+                return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.created"), POST));
             }
 
         }
 
         LOG.warning("User not found -- Post: " + mapper.writeValueAsString(createPostRequest));
-        return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(localization).getProperty("user.not.found"));
+        return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"));
     }
 
     @Override
@@ -79,13 +78,13 @@ public class PostServiceImpl implements PostService {
         if (Objects.nonNull(user)) {
             if (!userUtils.isSessionUser(user)) {
                 LOG.warning("This user is not session user -- Post: " + mapper.writeValueAsString(deletePostRequest));
-                return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(localization).getProperty("this.user.is.not.session.user"));
+                return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.session.user"));
             }
             Post post = postRepository.findById(deletePostRequest.getId()).orElse(null);
             if (Objects.nonNull(post)) {
                 if (!post.getUser().getUsername().equals(user.getUsername())) {
                     LOG.warning("This user is not owner this post -- Post: " + mapper.writeValueAsString(post));
-                    return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(localization).getProperty("this.user.is.not.owner.this.post"));
+                    return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.owner.this.post"));
                 }
 
                 try {
@@ -94,20 +93,20 @@ public class PostServiceImpl implements PostService {
                     LOG.info("Post deleted with success -- Post: " + mapper.writeValueAsString(post)
                             + " -- Username: " + user.getUsername());
 
-                    return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(localization).getProperty("deleted.with.success"), POST));
+                    return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("deleted.with.success"), POST));
                 } catch (Exception e) {
                     LOG.warning("Post could not be deleted -- Post: " + mapper.writeValueAsString(post)
                             + " -- Username: " + user.getUsername());
-                    return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(localization).getProperty("could.not.be.deleted"), POST));
+                    return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.deleted"), POST));
                 }
             }
             LOG.warning("Post not found -- Post: " + mapper.writeValueAsString(deletePostRequest)
                     + "-- Username: " + user.getUsername());
-            return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(localization).getProperty("not.found"), POST));
+            return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.found"), POST));
         }
 
         LOG.warning("User not found -- Post: " + mapper.writeValueAsString(deletePostRequest));
-        return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(localization).getProperty("user.not.found"));
+        return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"));
     }
 
     @Override

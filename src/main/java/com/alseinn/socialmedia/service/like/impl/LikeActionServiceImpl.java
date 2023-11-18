@@ -24,6 +24,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
+import static com.alseinn.socialmedia.utils.contants.AppTRConstants.*;
+
 @Service
 @RequiredArgsConstructor
 public class LikeActionServiceImpl implements LikeActionService {
@@ -35,9 +37,6 @@ public class LikeActionServiceImpl implements LikeActionService {
     private final CommentService commentService;
     private final LikeActionRepository likeActionRepository;
     private final ResponseUtils responseUtils;
-
-    private static final String LOCALIZATION = "tr";
-    private static final String ACTION = "action";
 
     private static final Logger LOG = Logger.getLogger(LikeActionServiceImpl.class.getName());
 

@@ -21,6 +21,8 @@ import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.logging.Logger;
 
+import static com.alseinn.socialmedia.utils.contants.AppTRConstants.*;
+
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
@@ -31,10 +33,6 @@ public class CommentServiceImpl implements CommentService {
     private final ObjectMapper mapper;
     private final PostService postService;
     private final ResponseUtils responseUtils;
-
-    private static final String LOCALIZATION = "tr";
-    private static final String COMMENT = "Comment";
-    private static final String POST = "Post";
 
     private static final Logger LOG = Logger.getLogger(CommentServiceImpl.class.getName());
 
