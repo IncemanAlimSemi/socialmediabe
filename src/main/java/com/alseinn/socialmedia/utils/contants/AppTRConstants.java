@@ -6,4 +6,5 @@ public interface AppTRConstants {
     String COMMENT = "Comment";
     String POST = "Post";
     String ACTION = "action";
+    String HOURS_24 = "24";
 }
