@@ -38,6 +38,7 @@ public class ImageServiceImpl implements ImageService {
                         .imageData(ImageUtils.compressImage(file.getBytes()))
                         .build());
 
+                LOG.info("Image saved with success: " + image.getName());
                 return ImageResponse.imageResponseBuilder()
                         .isSuccess(true)
                         .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("saved.with.success"), PICTURE))
@@ -54,6 +55,7 @@ public class ImageServiceImpl implements ImageService {
             }
         }
 
+        LOG.warning("Image is null!");
        return ImageResponse.imageResponseBuilder()
                 .isSuccess(false)
                 .message(ResponseUtils.getProperties(LOCALIZATION).getProperty("empty"))
@@ -65,6 +67,7 @@ public class ImageServiceImpl implements ImageService {
     public byte[] getImage(Long id) {
         Image image = imageRepository.findById(id).orElse(null);
         if (Objects.isNull(image)) {
+            LOG.warning("Image not found with id: " + id);
             return null;
         }
         return ImageUtils.decompressImage(image.getImageData());
@@ -75,7 +78,7 @@ public class ImageServiceImpl implements ImageService {
         if (Objects.nonNull(image)){
             try {
                 imageRepository.delete(image);
-                LOG.warning(MessageFormat.format("Image deleted with success: {0}", image.getName()));
+                LOG.info("Image deleted with success: " + image.getName());
                 return responseUtils.createGeneralInformationResponse(true,
                         MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("deleted.with.success"), PICTURE));
             } catch (Exception e) {

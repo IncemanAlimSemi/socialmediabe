@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService {
                 }
                 user.setProfileImage(imageService.uploadImage(uploadImageRequest.getImage()).getImage());
                 userRepository.save(user);
-                LOG.warning(MessageFormat.format("Profile picture saved successfully. : {0} - {1} - {2}"
+                LOG.info(MessageFormat.format("Profile picture saved successfully. : {0} - {1} - {2}"
                         , user.getProfileImage().getId(), user.getProfileImage().getName(), user.getProfileImage().getType()));
                 return responseUtils.createGeneralInformationResponse(true,
                         MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("saved.with.success"), PICTURE));
@@ -132,7 +132,6 @@ public class UserServiceImpl implements UserService {
             try {
                 if (Objects.nonNull(user.getProfileImage())) {
                     removeProfileImage(user);
-                    LOG.warning("Profile picture removed successfully.");
                     return responseUtils.createGeneralInformationResponse(true,
                             MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("removed.with.success"), PICTURE));
                 }
@@ -147,6 +146,7 @@ public class UserServiceImpl implements UserService {
             }
         }
 
+        LOG.warning("User not found!");
         return responseUtils.createGeneralInformationResponse(false,
                 MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.found"), USER));
     }
