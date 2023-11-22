@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
             return UserDetailResponse.userDetailResponseBuilder()
                     .isSuccess(true)
                     .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION)
-                            .getProperty("user.details.listed.with.success"), USER))
+                            .getProperty("listed.with.success"), USER))
                     .username(user.getUsername())
                     .firstname(user.getFirstname())
                     .lastname(user.getLastname())
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
 
         LOG.warning("User not found! : " + username);
         return responseUtils.createGeneralInformationResponse(false,
-                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"), PICTURE));
+                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.found"), USER));
     }
 
     @Override
@@ -104,18 +104,22 @@ public class UserServiceImpl implements UserService {
                 }
                 user.setProfileImage(imageService.uploadImage(uploadImageRequest.getImage()).getImage());
                 userRepository.save(user);
+                LOG.warning(MessageFormat.format("Profile picture saved successfully. : {0} - {1} - {2}"
+                        , user.getProfileImage().getId(), user.getProfileImage().getName(), user.getProfileImage().getType()));
                 return responseUtils.createGeneralInformationResponse(true,
-                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("profile.picture.saved.with.success"), PICTURE));
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("saved.with.success"), PICTURE));
 
             }catch (Exception e){
                 LOG.warning("Error occurred while saving profile picture: " + e);
                 return responseUtils.createGeneralInformationResponse(false,
-                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("profile.picture.picture.could.not.be.saved"), PICTURE));
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.saved"), PICTURE));
             }
 
         }
+
+        LOG.warning("User not found!");
         return responseUtils.createGeneralInformationResponse(false,
-                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"), PICTURE));
+                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.found"), USER));
 
     }
 
@@ -130,21 +134,21 @@ public class UserServiceImpl implements UserService {
                     removeProfileImage(user);
                     LOG.warning("Profile picture removed successfully.");
                     return responseUtils.createGeneralInformationResponse(true,
-                            MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("profile.picture.removed.with.success"), PICTURE));
+                            MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("removed.with.success"), PICTURE));
                 }
                 LOG.warning("Profile picture not exist.");
                 return responseUtils.createGeneralInformationResponse(false,
-                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("profile.picture.not.exist"), PICTURE));
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.exist"), PICTURE));
             } catch (Exception e) {
                 LOG.warning("Error occurred while removing profile picture: " + e);
 
                 return responseUtils.createGeneralInformationResponse(false,
-                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("profile.picture.could.not.be.removed"), PICTURE));
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.removed"), PICTURE));
             }
         }
 
         return responseUtils.createGeneralInformationResponse(false,
-                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"), PICTURE));
+                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.found"), USER));
     }
 
     private UserFollowersResponse getUserFollowersResponse(User user) {
@@ -185,7 +189,7 @@ public class UserServiceImpl implements UserService {
             imageService.deleteImage(profileImage);
             userRepository.save(user);
         }
-
+        LOG.warning("Profile picture not exist.");
     }
 
 }

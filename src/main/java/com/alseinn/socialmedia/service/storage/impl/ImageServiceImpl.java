@@ -40,7 +40,7 @@ public class ImageServiceImpl implements ImageService {
 
                 return ImageResponse.imageResponseBuilder()
                         .isSuccess(true)
-                        .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.saved.with.success"), PICTURE))
+                        .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("saved.with.success"), PICTURE))
                         .image(image)
                         .build();
             }catch (Exception e) {
@@ -48,7 +48,7 @@ public class ImageServiceImpl implements ImageService {
                         , file.getOriginalFilename(), e.getMessage()));
                 return ImageResponse.imageResponseBuilder()
                         .isSuccess(false)
-                        .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.could.not.be.saved"), PICTURE))
+                        .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.saved"), PICTURE))
                         .build();
 
             }
@@ -56,7 +56,7 @@ public class ImageServiceImpl implements ImageService {
 
        return ImageResponse.imageResponseBuilder()
                 .isSuccess(false)
-                .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.is.empty"), PICTURE))
+                .message(ResponseUtils.getProperties(LOCALIZATION).getProperty("empty"))
                 .build();
 
     }
@@ -75,18 +75,19 @@ public class ImageServiceImpl implements ImageService {
         if (Objects.nonNull(image)){
             try {
                 imageRepository.delete(image);
-                LOG.warning("Image deleted successfully");
+                LOG.warning(MessageFormat.format("Image deleted with success: {0}", image.getName()));
                 return responseUtils.createGeneralInformationResponse(true,
-                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.deleted.with.success"), PICTURE));
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("deleted.with.success"), PICTURE));
             } catch (Exception e) {
                 LOG.warning("Error occurred while deleting image: " + e);
                 return responseUtils.createGeneralInformationResponse(false,
-                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.could.not.be.deleted"), PICTURE));
+                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.deleted"), PICTURE));
             }
         }
 
+        LOG.warning("Image is null!");
         return responseUtils.createGeneralInformationResponse(false,
-                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("image.is.empty"), PICTURE));
+                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("empty"), PICTURE));
 
     }
 
