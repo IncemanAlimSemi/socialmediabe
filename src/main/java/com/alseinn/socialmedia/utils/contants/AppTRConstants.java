@@ -8,4 +8,5 @@ public interface AppTRConstants {
     String PICTURE = "Picture";
     String ACTION = "action";
     String USER = "User";
+    String HOURS_24 = "24";
 }

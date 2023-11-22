@@ -1,11 +1,15 @@
 package com.alseinn.socialmedia.service.post.impl;
 
+import com.alseinn.socialmedia.entity.comment.Comment;
 import com.alseinn.socialmedia.request.post.DeletePostRequest;
 import com.alseinn.socialmedia.dao.user.PostRepository;
 import com.alseinn.socialmedia.entity.post.Post;
 import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.post.CreatePostRequest;
+import com.alseinn.socialmedia.response.comment.CommentDetailResponse;
 import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
+import com.alseinn.socialmedia.response.post.PostDetailResponse;
+import com.alseinn.socialmedia.response.user.UsersPostResponse;
 import com.alseinn.socialmedia.service.post.PostService;
 import com.alseinn.socialmedia.service.user.UserService;
 import com.alseinn.socialmedia.utils.ResponseUtils;
@@ -13,11 +17,11 @@ import com.alseinn.socialmedia.utils.UserUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Date;
+import java.util.*;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 import static com.alseinn.socialmedia.utils.contants.AppTRConstants.*;
@@ -114,5 +118,68 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post findById(Long id) {
         return postRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public GeneralInformationResponse findByUserOrderByDate(String username) throws IOException {
+        User user = userService.findByUsername(username);
+
+        if (Objects.nonNull(user)) {
+            if (!userUtils.isSessionUser(user)) {
+                LOG.warning("This user is not session user -- Username: " + mapper.writeValueAsString(username));
+                return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.session.user"));
+            }
+
+            List<Post> posts = postRepository.findByUserOrderByDate(user);
+
+            if (CollectionUtils.isEmpty(posts)) {
+                LOG.warning("No posts found by the user in 24 hours -- Username: " + mapper.writeValueAsString(username));
+                return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("no.posts.found.by.the.user.in.x.hours"), HOURS_24));
+            }
+
+            try {
+                LOG.info("Posts are get with success -- Username: " + mapper.writeValueAsString(username));
+                return UsersPostResponse.builderWithExtendFields()
+                        .username(username)
+                        .postDetailResponses(createPostDetailResponses(posts))
+                        .isSuccess(true)
+                        .message(ResponseUtils.getProperties(LOCALIZATION).getProperty("posts.are.get.with.success"))
+                        .build();
+
+            } catch (Exception e) {
+                LOG.info("Posts could not get with success -- Username: " + mapper.writeValueAsString(username));
+                return responseUtils.createGeneralInformationResponse(false,
+                        ResponseUtils.getProperties(LOCALIZATION).getProperty("posts.could.not.get.with.success"));
+            }
+        }
+
+        return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"));
+    }
+
+    private List<PostDetailResponse> createPostDetailResponses(List<Post> posts) {
+        List<PostDetailResponse> postDetailResponses = new ArrayList<>();
+        posts.forEach(post -> postDetailResponses.add(PostDetailResponse.builder()
+                .title(post.getTitle())
+                .content(post.getContent())
+                .like(post.getPostLike())
+                .unlike(post.getPostUnlike())
+                .date(post.getDate())
+                .commentDetailResponses(createCommentDetailResponses(post.getComments()))
+                .build())
+        );
+
+        return postDetailResponses;
+    }
+
+    private List<CommentDetailResponse> createCommentDetailResponses(List<Comment> comments) {
+        List<CommentDetailResponse> commentDetailResponses = new ArrayList<>();
+        comments.forEach(comment -> commentDetailResponses.add(CommentDetailResponse.builder()
+                .content(comment.getContent())
+                .username(comment.getUser().getUsername())
+                .date(comment.getDate())
+                .build())
+        );
+
+        return commentDetailResponses;
     }
 }
