@@ -47,8 +47,8 @@ class PostServiceTests {
         Boolean isSuccess = true;
         String message = "Post created with success.";
         CreatePostRequest createPostRequest = new CreatePostRequest(username, "postTitle", "postContent");
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(0, createPostRequest.getTitle(), createPostRequest.getContent(), 0, 0, user, null);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(0, createPostRequest.getTitle(), createPostRequest.getContent(), 0, 0, user, null, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -99,7 +99,7 @@ class PostServiceTests {
         Boolean isSuccess = false;
         String message = "This user is not session user.";
         CreatePostRequest createPostRequest = new CreatePostRequest(username, "postTitle", "postContent");
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -125,8 +125,8 @@ class PostServiceTests {
         Boolean isSuccess = false;
         String message = "Post could not be created.";
         CreatePostRequest createPostRequest = new CreatePostRequest(username, "postTitle", "postContent");
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(0, createPostRequest.getTitle(), createPostRequest.getContent(), 0, 0, user, null);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(0, createPostRequest.getTitle(), createPostRequest.getContent(), 0, 0, user, null, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -155,8 +155,8 @@ class PostServiceTests {
         Boolean isSuccess = true;
         String message = "Post deleted with success.";
         DeletePostRequest deletePostRequest = new DeletePostRequest(postId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -210,7 +210,7 @@ class PostServiceTests {
         Boolean isSuccess = false;
         String message = "This user is not session user.";
         DeletePostRequest deletePostRequest = new DeletePostRequest(postId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(false, "This user is not session user.");
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -237,7 +237,7 @@ class PostServiceTests {
         Boolean isSuccess = false;
         String message = "Post not found.";
         DeletePostRequest deletePostRequest = new DeletePostRequest(postId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(false, "Post not found.");
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -267,9 +267,9 @@ class PostServiceTests {
         Boolean isSuccess = false;
         String message = "This user is not owner this post.";
         DeletePostRequest deletePostRequest = new DeletePostRequest(postId, ownerOfPostUsername);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        User ownerOfPostUser = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", ownerOfPostUsername, "123", Role.USER);
-        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        User ownerOfPostUser = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", ownerOfPostUsername, "123", Role.USER, null);
+        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(ownerOfPostUsername)).thenReturn(ownerOfPostUser);
@@ -298,8 +298,8 @@ class PostServiceTests {
         Boolean isSuccess = false;
         String message = "Post could not be deleted.";
         DeletePostRequest deletePostRequest = new DeletePostRequest(postId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -327,8 +327,8 @@ class PostServiceTests {
     void shouldReturnPost_whenPostFindWithIdInDatabase() {
         long postId = 0L;
         String username = "testUser";
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null, null);
 
         Mockito.when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 

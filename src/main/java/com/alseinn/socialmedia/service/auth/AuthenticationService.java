@@ -23,6 +23,8 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+
+
     public AuthenticationResponse register(RegisterRequest request) {
         Optional<User> dbUser = userRepository.findByUsername(request.getUsername());
 

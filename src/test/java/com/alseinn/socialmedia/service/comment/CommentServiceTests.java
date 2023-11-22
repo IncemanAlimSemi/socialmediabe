@@ -54,9 +54,9 @@ class CommentServiceTests {
         Boolean isSuccess = true;
         String message = "Comment created with success.";
         CreateCommentRequest createCommentRequest = new CreateCommentRequest(postId, "Content", "testUser");
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(postId, "firstPost", "firstPost", 0, 0, user, new ArrayList<>());
-        Comment comment = new Comment(0, "Content", post, user);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(postId, "firstPost", "firstPost", 0, 0, user, new ArrayList<>(), null);
+        Comment comment = new Comment(0, "Content", post, user, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -110,7 +110,7 @@ class CommentServiceTests {
         String username = "testUser";
         Boolean isSuccess = false;
         String message = "This user is not session user.";
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
         CreateCommentRequest createCommentRequest = new CreateCommentRequest(postId, "Content", "testUser");
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
@@ -138,7 +138,7 @@ class CommentServiceTests {
         Boolean isSuccess = false;
         String message = "Post not found.";
         CreateCommentRequest createCommentRequest = new CreateCommentRequest(postId, "Content", "testUser");
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -167,9 +167,9 @@ class CommentServiceTests {
         Boolean isSuccess = false;
         String message = "Comment could not be created.";
         CreateCommentRequest createCommentRequest = new CreateCommentRequest(postId, "Content", "testUser");
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(postId, "firstPost", "firstPost", 0, 0, user, new ArrayList<>());
-        Comment comment = new Comment(0, "Content", post, user);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(postId, "firstPost", "firstPost", 0, 0, user, new ArrayList<>(), null);
+        Comment comment = new Comment(0, "Content", post, user, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -200,9 +200,9 @@ class CommentServiceTests {
         Boolean isSuccess = true;
         String message = "Comment deleted with success.";
         DeleteCommentRequest deleteCommentRequest = new DeleteCommentRequest(commentId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(1L, "firstPost", "firstPost", 0, 0, user, new ArrayList<>());
-        Comment comment = new Comment(commentId, "commentContent", post, user);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(1L, "firstPost", "firstPost", 0, 0, user, new ArrayList<>(), null);
+        Comment comment = new Comment(commentId, "commentContent", post, user, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -233,10 +233,10 @@ class CommentServiceTests {
         Boolean isSuccess = true;
         String message = "Comment deleted with success.";
         DeleteCommentRequest deleteCommentRequest = new DeleteCommentRequest(commentId, ownerOfPostUsername);
-        User ownerOfPostUser = new User("owner post", "user", Gender.MAN, "testUser@test.com", "1111111111", ownerOfPostUsername, "123", Role.USER);
-        User ownerOfCommentUser = new User("owner comment", "user", Gender.MAN, "testUser@test.com", "1111111111", ownerOfCommentUsername, "123", Role.USER);
-        Post post = new Post(1L, "firstPost", "firstPost", 0, 0, ownerOfPostUser, new ArrayList<>());
-        Comment comment = new Comment(commentId, "commentContent", post, ownerOfCommentUser);
+        User ownerOfPostUser = new User("owner post", "user", Gender.MAN, "testUser@test.com", "1111111111", ownerOfPostUsername, "123", Role.USER, null);
+        User ownerOfCommentUser = new User("owner comment", "user", Gender.MAN, "testUser@test.com", "1111111111", ownerOfCommentUsername, "123", Role.USER, null);
+        Post post = new Post(1L, "firstPost", "firstPost", 0, 0, ownerOfPostUser, new ArrayList<>(), null);
+        Comment comment = new Comment(commentId, "commentContent", post, ownerOfCommentUser, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(ownerOfPostUsername)).thenReturn(ownerOfPostUser);
@@ -291,7 +291,7 @@ class CommentServiceTests {
         Boolean isSuccess = false;
         String message = "This user is not session user.";
         DeleteCommentRequest deleteCommentRequest = new DeleteCommentRequest(commentId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -318,7 +318,7 @@ class CommentServiceTests {
         Boolean isSuccess = false;
         String message = "Comment not found.";
         DeleteCommentRequest deleteCommentRequest = new DeleteCommentRequest(commentId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -347,10 +347,10 @@ class CommentServiceTests {
         Boolean isSuccess = false;
         String message = "This user is not owner of post or comment.";
         DeleteCommentRequest deleteCommentRequest = new DeleteCommentRequest(commentId, notOwnerUsername);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        User notOwnerUser = new User("not owner", "user", Gender.MAN, "testUser2@test.com", "2222222222", notOwnerUsername, "123", Role.USER);
-        Post post = new Post(1L, "firstPost", "firstPost", 0, 0, user, new ArrayList<>());
-        Comment comment = new Comment(commentId, "commentContent", post, user);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        User notOwnerUser = new User("not owner", "user", Gender.MAN, "testUser2@test.com", "2222222222", notOwnerUsername, "123", Role.USER, null);
+        Post post = new Post(1L, "firstPost", "firstPost", 0, 0, user, new ArrayList<>(), null);
+        Comment comment = new Comment(commentId, "commentContent", post, user, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(notOwnerUsername)).thenReturn(notOwnerUser);
@@ -379,9 +379,9 @@ class CommentServiceTests {
         Boolean isSuccess = false;
         String message = "Comment could not be deleted.";
         DeleteCommentRequest deleteCommentRequest = new DeleteCommentRequest(commentId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(1L, "firstPost", "firstPost", 0, 0, user, new ArrayList<>());
-        Comment comment = new Comment(commentId, "commentContent", post, user);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(1L, "firstPost", "firstPost", 0, 0, user, new ArrayList<>(), null);
+        Comment comment = new Comment(commentId, "commentContent", post, user, null);
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
@@ -409,9 +409,9 @@ class CommentServiceTests {
     void shouldReturnComment_whenIdFindInDatabase() {
         Long commentId = 1L;
         String username = "testUser";
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(1L, "firstPost", "firstPost", 0, 0, user, new ArrayList<>());
-        Comment comment = new Comment(commentId, "commentContent", post, user);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(1L, "firstPost", "firstPost", 0, 0, user, new ArrayList<>(), null);
+        Comment comment = new Comment(commentId, "commentContent", post, user, null);
 
         Mockito.when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 

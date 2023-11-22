@@ -1,5 +1,6 @@
-package com.alseinn.socialmedia.response.user;
+package com.alseinn.socialmedia.response.follow;
 
+import com.alseinn.socialmedia.response.follow.FollowDataResponse;
 import com.alseinn.socialmedia.response.concrete.AbstractResponse;
 import lombok.*;
 
