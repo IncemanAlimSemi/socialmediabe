@@ -23,6 +23,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getProfile(username));
     }
 
+    @GetMapping("/profile/other/{username}")
+    public ResponseEntity<GeneralInformationResponse> getOtherProfile(@PathVariable String username) throws IOException {
+        return ResponseEntity.ok(userService.getOtherProfile(username));
+    }
+
     @GetMapping("/followers/{username}")
     public ResponseEntity<UserFollowersResponse> getFollowers(@PathVariable String username) throws JsonProcessingException {
         return ResponseEntity.ok(userService.getFollowers(username));

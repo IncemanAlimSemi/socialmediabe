@@ -6,6 +6,7 @@ import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.image.UploadImageRequest;
 import com.alseinn.socialmedia.response.follow.FollowDataResponse;
 import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
+import com.alseinn.socialmedia.response.user.OtherUserDetailResponse;
 import com.alseinn.socialmedia.response.user.UserDetailResponse;
 import com.alseinn.socialmedia.response.follow.UserFollowersResponse;
 import com.alseinn.socialmedia.response.follow.UserFollowingsResponse;
@@ -50,19 +51,48 @@ public class UserServiceImpl implements UserService {
     @Override
     public GeneralInformationResponse getProfile(String username) throws IOException {
         User user = findByUsername(username);
+
         if (Objects.nonNull(user)) {
 
-            return UserDetailResponse.userDetailResponseBuilder()
+            if (userUtils.isSessionUser(user)) {
+                return UserDetailResponse.userDetailResponseBuilder()
+                        .isSuccess(true)
+                        .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION)
+                                .getProperty("listed.with.success"), USER))
+                        .username(user.getUsername())
+                        .firstname(user.getFirstname())
+                        .lastname(user.getLastname())
+                        .email(user.getEmail())
+                        .mobileNumber(user.getMobileNumber())
+                        .profileImage(Objects.nonNull(user.getProfileImage()) ? imageService.getImage(user.getProfileImage().getId()) : null)
+                        .role(user.getRole())
+                        .build();
+            }
+
+            LOG.warning("This user is not session user -- User: " + mapper.writeValueAsString(user));
+            return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.session.user"));
+        }
+
+        LOG.warning("User not found! : " + username);
+        return responseUtils.createGeneralInformationResponse(false,
+                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.found"), USER));
+
+
+    }
+
+    @Override
+    public GeneralInformationResponse getOtherProfile(String username) throws IOException {
+        User user = findByUsername(username);
+        if (Objects.nonNull(user)) {
+
+            return OtherUserDetailResponse.otherUserDetailResponseBuilder()
                     .isSuccess(true)
                     .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION)
                             .getProperty("listed.with.success"), USER))
                     .username(user.getUsername())
                     .firstname(user.getFirstname())
                     .lastname(user.getLastname())
-                    .email(user.getEmail())
-                    .mobileNumber(user.getMobileNumber())
                     .profileImage(Objects.nonNull(user.getProfileImage()) ? imageService.getImage(user.getProfileImage().getId()) : null)
-                    .role(user.getRole())
                     .build();
         }
 
@@ -98,7 +128,7 @@ public class UserServiceImpl implements UserService {
     public GeneralInformationResponse updateProfilePicture(UploadImageRequest uploadImageRequest) throws IOException {
         User user = userUtils.getUserFromSecurityContext();
         if (Objects.nonNull(user)) {
-            try{
+            try {
                 if (Objects.nonNull(user.getProfileImage())) {
                     imageService.deleteImage(user.getProfileImage());
                 }
@@ -109,7 +139,7 @@ public class UserServiceImpl implements UserService {
                 return responseUtils.createGeneralInformationResponse(true,
                         MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("saved.with.success"), PICTURE));
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 LOG.warning("Error occurred while saving profile picture: " + e);
                 return responseUtils.createGeneralInformationResponse(false,
                         MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.saved"), PICTURE));

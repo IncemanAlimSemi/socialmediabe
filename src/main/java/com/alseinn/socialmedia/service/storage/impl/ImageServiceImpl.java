@@ -30,9 +30,16 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public ImageResponse uploadImage(MultipartFile file) throws IOException {
-        if (Objects.nonNull(file)) {
+        if (Objects.nonNull(file) && !file.isEmpty()) {
+            if (!isImage(file.getContentType())) {
+                LOG.warning("File is not an image: " + file.getOriginalFilename());
+                return ImageResponse.imageResponseBuilder()
+                        .isSuccess(false)
+                        .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.an.image"), PICTURE))
+                        .build();
+            }
             try{
-                Image image = imageRepository.save(Image.builder()
+                    Image image = imageRepository.save(Image.builder()
                         .name(StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())))
                         .type(file.getContentType())
                         .imageData(ImageUtils.compressImage(file.getBytes()))
@@ -92,6 +99,10 @@ public class ImageServiceImpl implements ImageService {
         return responseUtils.createGeneralInformationResponse(false,
                 MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("empty"), PICTURE));
 
+    }
+
+    private boolean isImage(String contentType) {
+        return Objects.nonNull(contentType) && contentType.startsWith("image/");
     }
 
 }
