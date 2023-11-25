@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Query(value = "SELECT p.id, content, post_like, post_unlike, title, user_id, date FROM post as p LEFT JOIN user as u on p.user_id = u.id WHERE p.date >= CURRENT_TIMESTAMP - INTERVAL '7' DAY ORDER BY p.date DESC", nativeQuery = true)
+    @Query(value = "SELECT p.id, content, post_like, title, user_id, date FROM post as p LEFT JOIN user as u on p.user_id = u.id WHERE p.date >= CURRENT_TIMESTAMP - INTERVAL '7' DAY ORDER BY p.date DESC", nativeQuery = true)
     List<Post> findByUserOrderByDate(User user);
 
 }
