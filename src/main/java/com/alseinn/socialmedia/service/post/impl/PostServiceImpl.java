@@ -161,7 +161,6 @@ public class PostServiceImpl implements PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .like(post.getPostLike())
-                .unlike(post.getPostUnlike())
                 .date(post.getDate())
                 .commentDetailResponses(createCommentDetailResponses(post.getComments()))
                 .build())
