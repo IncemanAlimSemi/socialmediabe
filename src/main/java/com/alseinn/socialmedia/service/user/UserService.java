@@ -14,6 +14,8 @@ public interface UserService {
 
     GeneralInformationResponse getProfile(String username) throws IOException;
 
+    GeneralInformationResponse getOtherProfile(String username) throws IOException;
+
     UserFollowersResponse getFollowers(String username) throws JsonProcessingException;
 
     UserFollowingsResponse getFollowings(String username) throws JsonProcessingException;

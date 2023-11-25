@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Optional;
 
 class PostServiceTests {
@@ -126,7 +127,7 @@ class PostServiceTests {
         String message = "Post could not be created.";
         CreatePostRequest createPostRequest = new CreatePostRequest(username, "postTitle", "postContent");
         User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
-        Post post = new Post(0, createPostRequest.getTitle(), createPostRequest.getContent(), 0, 0, user, null, null);
+        Post post = new Post(0, createPostRequest.getTitle(), createPostRequest.getContent(), 0, 0, user, null, new Date(System.currentTimeMillis()));
         GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
