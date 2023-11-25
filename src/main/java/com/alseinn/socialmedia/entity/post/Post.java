@@ -28,8 +28,6 @@ public class Post {
     private String content;
     @Column
     private long postLike;
-    @Column
-    private long postUnlike;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore

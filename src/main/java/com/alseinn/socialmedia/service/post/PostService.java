@@ -11,5 +11,6 @@ public interface PostService {
     PostResponse createPost(CreatePostRequest createPostRequest) throws JsonProcessingException;
     PostResponse deletePost(DeletePostRequest deletePostRequest) throws JsonProcessingException;
     Post findById(Long id);
+    void setPostLikeOrUnlike(Boolean isLike, Long id);
 
 }

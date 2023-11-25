@@ -45,7 +45,6 @@ public class PostServiceImpl implements PostService {
                     .title(createPostRequest.getTitle())
                     .content(createPostRequest.getContent())
                     .postLike(0)
-                    .postUnlike(0)
                     .user(user)
                     .build();
 
@@ -137,5 +136,16 @@ public class PostServiceImpl implements PostService {
                 .isSuccess(false)
                 .message("User not found.")
                 .build();
+    }
+
+    public void setPostLikeOrUnlike(Boolean isLike, Long id) {
+        Post post = findById(id);
+        long like = post.getPostLike();
+        if (isLike) {
+            post.setPostLike(like + 1);
+        } else if (like > 0){
+            post.setPostLike(post.getPostLike() - 1);
+        }
+        postRepository.save(post);
     }
 }
