@@ -16,7 +16,6 @@ public class PostDetailResponse extends AbstractResponse {
     String title;
     String content;
     Long like;
-    Long unlike;
     Date date;
     List<CommentDetailResponse> commentDetailResponses;
 }
