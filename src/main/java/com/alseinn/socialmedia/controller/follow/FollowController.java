@@ -2,7 +2,7 @@ package com.alseinn.socialmedia.controller.follow;
 
 import com.alseinn.socialmedia.request.follow.FollowRequest;
 import com.alseinn.socialmedia.request.follow.UnfollowRequest;
-import com.alseinn.socialmedia.response.follow.FollowResponse;
+import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import com.alseinn.socialmedia.service.follow.FollowService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +20,12 @@ public class FollowController {
     private final FollowService followService;
 
     @PostMapping("/add")
-    public ResponseEntity<FollowResponse> follow(@RequestBody FollowRequest followRequest) throws JsonProcessingException {
+    public ResponseEntity<GeneralInformationResponse> follow(@RequestBody FollowRequest followRequest) throws JsonProcessingException {
         return ResponseEntity.ok(followService.follow(followRequest));
     }
 
     @PostMapping("/remove")
-    public ResponseEntity<FollowResponse> unfollow(@RequestBody UnfollowRequest unfollowRequest) throws JsonProcessingException {
+    public ResponseEntity<GeneralInformationResponse> unfollow(@RequestBody UnfollowRequest unfollowRequest) throws JsonProcessingException {
         return ResponseEntity.ok(followService.unfollow(unfollowRequest));
     }
 

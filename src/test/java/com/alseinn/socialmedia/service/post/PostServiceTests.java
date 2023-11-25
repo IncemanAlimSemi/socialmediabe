@@ -7,17 +7,18 @@ import com.alseinn.socialmedia.entity.user.enums.Gender;
 import com.alseinn.socialmedia.entity.user.enums.Role;
 import com.alseinn.socialmedia.request.post.CreatePostRequest;
 import com.alseinn.socialmedia.request.post.DeletePostRequest;
-import com.alseinn.socialmedia.response.post.PostResponse;
+import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import com.alseinn.socialmedia.service.post.impl.PostServiceImpl;
 import com.alseinn.socialmedia.service.user.UserService;
+import com.alseinn.socialmedia.utils.ResponseUtils;
 import com.alseinn.socialmedia.utils.UserUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.Optional;
 
 class PostServiceTests {
@@ -27,6 +28,7 @@ class PostServiceTests {
     private ObjectMapper mapper;
     private UserUtils userUtils;
     private PostService postService;
+    private ResponseUtils responseUtils;
 
     @BeforeEach
     void setup() {
@@ -34,24 +36,29 @@ class PostServiceTests {
         postRepository = Mockito.mock(PostRepository.class);
         mapper = Mockito.mock(ObjectMapper.class);
         userUtils = Mockito.mock(UserUtils.class);
+        responseUtils = Mockito.mock(ResponseUtils.class);
 
-        postService = new PostServiceImpl(userService, postRepository, mapper, userUtils);
+        postService = new PostServiceImpl(userService, postRepository, mapper, userUtils, responseUtils);
     }
 
     @Test
-    void shouldReturnPostResponseWithIsSuccessTrue_whenCreatePostRequestParametersAreFillTrue() throws JsonProcessingException {
+    void shouldReturnGeneralInformationResponseWithIsSuccessTrue_whenCreatePostRequestParametersAreFillTrue() throws IOException {
         String username = "testUser";
+        Boolean isSuccess = true;
+        String message = "Post created with success.";
         CreatePostRequest createPostRequest = new CreatePostRequest(username, "postTitle", "postContent");
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(0, createPostRequest.getPostTitle(), createPostRequest.getPostContent(), 0, 0, user, null);
-        PostResponse expectedResponse = new PostResponse(true, "Post created with success");
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(0, createPostRequest.getTitle(), createPostRequest.getContent(), 0, 0, user, null, null);
+        GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
         Mockito.when(userUtils.isSessionUser(user)).thenReturn(true);
         Mockito.when(postRepository.save(post)).thenReturn(post);
-        Mockito.when(mapper.writeValueAsString(post)).thenReturn(Mockito.anyString());
+        Mockito.when(mapper.writeValueAsString(post)).thenReturn("String");
+        Mockito.when(responseUtils.createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message)))
+                .thenReturn(expectedResponse);
 
-        PostResponse result = postService.createPost(createPostRequest);
+        GeneralInformationResponse result = postService.createPost(createPostRequest);
 
         Assertions.assertEquals(expectedResponse, result);
 
@@ -59,62 +66,77 @@ class PostServiceTests {
         Mockito.verify(userUtils).isSessionUser(user);
         Mockito.verify(postRepository).save(post);
         Mockito.verify(mapper).writeValueAsString(post);
+        Mockito.verify(responseUtils).createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message));
 
     }
 
     @Test
-    void shouldReturnPostResponseWithIsSuccessFalse_whenUserIsNotFoundWithCreatePostRequestUsername() throws JsonProcessingException {
+    void shouldReturnGeneralInformationResponseWithIsSuccessFalse_whenUserIsNotFoundWithCreatePostRequestUsername() throws IOException {
         String username = "testUser";
+        Boolean isSuccess = false;
+        String message = "User not found.";
         CreatePostRequest createPostRequest = new CreatePostRequest(username, "postTitle", "postContent");
-        PostResponse expectedResponse = new PostResponse(false, "User not found");
+        GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(null);
-        Mockito.when(mapper.writeValueAsString(createPostRequest)).thenReturn(Mockito.anyString());
+        Mockito.when(mapper.writeValueAsString(createPostRequest)).thenReturn("String");
+        Mockito.when(responseUtils.createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message)))
+                .thenReturn(expectedResponse);
 
-        PostResponse result = postService.createPost(createPostRequest);
+        GeneralInformationResponse result = postService.createPost(createPostRequest);
 
         Assertions.assertEquals(expectedResponse, result);
 
         Mockito.verify(userService).findByUsername(username);
         Mockito.verify(mapper).writeValueAsString(createPostRequest);
+        Mockito.verify(responseUtils).createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message));
 
     }
 
     @Test
-    void shouldReturnPostResponseWithIsSuccessFalse_whenUserIsNotSessionUserWithCreatePostRequestUsername() throws JsonProcessingException {
+    void shouldReturnGeneralInformationResponseWithIsSuccessFalse_whenUserIsNotSessionUserWithCreatePostRequestUsername() throws IOException {
         String username = "testUser";
+        Boolean isSuccess = false;
+        String message = "This user is not session user.";
         CreatePostRequest createPostRequest = new CreatePostRequest(username, "postTitle", "postContent");
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        PostResponse expectedResponse = new PostResponse(false, "This user is not session user.");
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
         Mockito.when(userUtils.isSessionUser(user)).thenReturn(false);
-        Mockito.when(mapper.writeValueAsString(createPostRequest)).thenReturn(Mockito.anyString());
+        Mockito.when(mapper.writeValueAsString(createPostRequest)).thenReturn("String");
+        Mockito.when(responseUtils.createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message)))
+                .thenReturn(expectedResponse);
 
-        PostResponse result = postService.createPost(createPostRequest);
+        GeneralInformationResponse result = postService.createPost(createPostRequest);
 
         Assertions.assertEquals(expectedResponse, result);
 
         Mockito.verify(userService).findByUsername(username);
         Mockito.verify(userUtils).isSessionUser(user);
         Mockito.verify(mapper).writeValueAsString(createPostRequest);
+        Mockito.verify(responseUtils).createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message));
 
     }
 
     @Test
-    void shouldReturnPostResponseWithIsSuccessFalse_whenPostCannotSaveDatabase() throws JsonProcessingException {
+    void shouldReturnGeneralInformationResponseWithIsSuccessFalse_whenPostCannotSaveDatabase() throws IOException {
         String username = "testUser";
+        Boolean isSuccess = false;
+        String message = "Post could not be created.";
         CreatePostRequest createPostRequest = new CreatePostRequest(username, "postTitle", "postContent");
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(0, createPostRequest.getPostTitle(), createPostRequest.getPostContent(), 0, 0, user, null);
-        PostResponse expectedResponse = new PostResponse(false, "Post could not be created");
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(0, createPostRequest.getTitle(), createPostRequest.getContent(), 0, 0, user, null, null);
+        GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
         Mockito.when(userUtils.isSessionUser(user)).thenReturn(true);
         Mockito.when(postRepository.save(post)).thenThrow(new NullPointerException("Exception"));
-        Mockito.when(mapper.writeValueAsString(createPostRequest)).thenReturn(Mockito.anyString());
+        Mockito.when(mapper.writeValueAsString(createPostRequest)).thenReturn("String");
+        Mockito.when(responseUtils.createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message)))
+                .thenReturn(expectedResponse);
 
-        PostResponse result = postService.createPost(createPostRequest);
+        GeneralInformationResponse result = postService.createPost(createPostRequest);
 
         Assertions.assertEquals(expectedResponse, result);
 
@@ -122,24 +144,29 @@ class PostServiceTests {
         Mockito.verify(userUtils).isSessionUser(user);
         Mockito.verify(postRepository).save(post);
         Mockito.verify(mapper).writeValueAsString(post);
+        Mockito.verify(responseUtils).createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message));
 
     }
 
     @Test
-    void shouldReturnPostResponseWithIsSuccessTrue_whenDeletePostRequestParametersAreFillTrue() throws JsonProcessingException {
+    void shouldReturnGeneralInformationResponseWithIsSuccessTrue_whenDeletePostRequestParametersAreFillTrue() throws IOException {
         Long postId = 0L;
         String username = "testUser";
+        Boolean isSuccess = true;
+        String message = "Post deleted with success.";
         DeletePostRequest deletePostRequest = new DeletePostRequest(postId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null);
-        PostResponse expectedResponse = new PostResponse(true, "Post deleted with success");
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null, null);
+        GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
         Mockito.when(userUtils.isSessionUser(user)).thenReturn(true);
         Mockito.when(postRepository.findById(postId)).thenReturn(Optional.of(post));
-        Mockito.when(mapper.writeValueAsString(post)).thenReturn(Mockito.anyString());
+        Mockito.when(mapper.writeValueAsString(post)).thenReturn("String");
+        Mockito.when(responseUtils.createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message)))
+                .thenReturn(expectedResponse);
 
-        PostResponse result = postService.deletePost(deletePostRequest);
+        GeneralInformationResponse result = postService.deletePost(deletePostRequest);
 
         Assertions.assertEquals(expectedResponse, result);
 
@@ -148,64 +175,79 @@ class PostServiceTests {
         Mockito.verify(postRepository).findById(postId);
         Mockito.verify(postRepository).delete(post);
         Mockito.verify(mapper).writeValueAsString(post);
+        Mockito.verify(responseUtils).createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message));
 
     }
 
     @Test
-    void shouldReturnPostResponseWithIsSuccessFalse_whenUserIsNotFoundWithDeletePostRequestUsername() throws JsonProcessingException {
+    void shouldReturnGeneralInformationResponseWithIsSuccessFalse_whenUserIsNotFoundWithDeletePostRequestUsername() throws IOException {
         Long postId = 0L;
         String username = "testUser";
+        Boolean isSuccess = false;
+        String message = "User not found.";
         DeletePostRequest deletePostRequest = new DeletePostRequest(postId, username);
-        PostResponse expectedResponse = new PostResponse(false, "User not found");
+        GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(null);
-        Mockito.when(mapper.writeValueAsString(deletePostRequest)).thenReturn(Mockito.anyString());
+        Mockito.when(mapper.writeValueAsString(deletePostRequest)).thenReturn("String");
+        Mockito.when(responseUtils.createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message)))
+                .thenReturn(expectedResponse);
 
-        PostResponse result = postService.deletePost(deletePostRequest);
+        GeneralInformationResponse result = postService.deletePost(deletePostRequest);
 
         Assertions.assertEquals(expectedResponse, result);
 
         Mockito.verify(userService).findByUsername(username);
         Mockito.verify(mapper).writeValueAsString(deletePostRequest);
+        Mockito.verify(responseUtils).createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message));
 
     }
 
     @Test
-    void shouldReturnPostResponseWithIsSuccessFalse_whenUserIsNotSessionUserWithDeletePostRequestUsername() throws JsonProcessingException {
+    void shouldReturnGeneralInformationResponseWithIsSuccessFalse_whenUserIsNotSessionUserWithDeletePostRequestUsername() throws IOException {
         Long postId = 0L;
         String username = "testUser";
+        Boolean isSuccess = false;
+        String message = "This user is not session user.";
         DeletePostRequest deletePostRequest = new DeletePostRequest(postId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        PostResponse expectedResponse = new PostResponse(false, "This user is not session user.");
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        GeneralInformationResponse expectedResponse = new GeneralInformationResponse(false, "This user is not session user.");
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
         Mockito.when(userUtils.isSessionUser(user)).thenReturn(false);
-        Mockito.when(mapper.writeValueAsString(deletePostRequest)).thenReturn(Mockito.anyString());
+        Mockito.when(mapper.writeValueAsString(deletePostRequest)).thenReturn("String");
+        Mockito.when(responseUtils.createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message)))
+                .thenReturn(expectedResponse);
 
-        PostResponse result = postService.deletePost(deletePostRequest);
+        GeneralInformationResponse result = postService.deletePost(deletePostRequest);
 
         Assertions.assertEquals(expectedResponse, result);
 
         Mockito.verify(userService).findByUsername(username);
         Mockito.verify(userUtils).isSessionUser(user);
         Mockito.verify(mapper).writeValueAsString(deletePostRequest);
+        Mockito.verify(responseUtils).createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message));
 
     }
 
     @Test
-    void shouldReturnPostResponseWithIsSuccessFalse_whenPostIsNotFoundWithDeletePostRequestPostId() throws JsonProcessingException {
+    void shouldReturnGeneralInformationResponseWithIsSuccessFalse_whenPostIsNotFoundWithDeletePostRequestPostId() throws IOException {
         Long postId = 0L;
         String username = "testUser";
+        Boolean isSuccess = false;
+        String message = "Post not found.";
         DeletePostRequest deletePostRequest = new DeletePostRequest(postId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        PostResponse expectedResponse = new PostResponse(false, "Post not found");
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        GeneralInformationResponse expectedResponse = new GeneralInformationResponse(false, "Post not found.");
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
         Mockito.when(userUtils.isSessionUser(user)).thenReturn(true);
         Mockito.when(postRepository.findById(postId)).thenReturn(Optional.empty());
-        Mockito.when(mapper.writeValueAsString(deletePostRequest)).thenReturn(Mockito.anyString());
+        Mockito.when(mapper.writeValueAsString(deletePostRequest)).thenReturn("String");
+        Mockito.when(responseUtils.createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message)))
+                .thenReturn(expectedResponse);
 
-        PostResponse result = postService.deletePost(deletePostRequest);
+        GeneralInformationResponse result = postService.deletePost(deletePostRequest);
 
         Assertions.assertEquals(expectedResponse, result);
 
@@ -213,26 +255,31 @@ class PostServiceTests {
         Mockito.verify(userUtils).isSessionUser(user);
         Mockito.verify(postRepository).findById(postId);
         Mockito.verify(mapper).writeValueAsString(deletePostRequest);
+        Mockito.verify(responseUtils).createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message));
 
     }
 
     @Test
-    void shouldReturnPostResponseWithIsSuccessFalse_whenUserIsNotOwnerOfPostWithDeletePostRequestUsername() throws JsonProcessingException {
+    void shouldReturnGeneralInformationResponseWithIsSuccessFalse_whenUserIsNotOwnerOfPostWithDeletePostRequestUsername() throws IOException {
         Long postId = 0L;
         String username = "testUser";
         String ownerOfPostUsername = "ownerOfPostUser";
+        Boolean isSuccess = false;
+        String message = "This user is not owner this post.";
         DeletePostRequest deletePostRequest = new DeletePostRequest(postId, ownerOfPostUsername);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        User ownerOfPostUser = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", ownerOfPostUsername, "123", Role.USER);
-        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null);
-        PostResponse expectedResponse = new PostResponse(false, "This user is not owner this post.");
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        User ownerOfPostUser = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", ownerOfPostUsername, "123", Role.USER, null);
+        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null, null);
+        GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(ownerOfPostUsername)).thenReturn(ownerOfPostUser);
         Mockito.when(userUtils.isSessionUser(ownerOfPostUser)).thenReturn(true);
         Mockito.when(postRepository.findById(postId)).thenReturn(Optional.of(post));
-        Mockito.when(mapper.writeValueAsString(deletePostRequest)).thenReturn(Mockito.anyString());
+        Mockito.when(mapper.writeValueAsString(deletePostRequest)).thenReturn("String");
+        Mockito.when(responseUtils.createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message)))
+                .thenReturn(expectedResponse);
 
-        PostResponse result = postService.deletePost(deletePostRequest);
+        GeneralInformationResponse result = postService.deletePost(deletePostRequest);
 
         Assertions.assertEquals(expectedResponse, result);
 
@@ -240,25 +287,30 @@ class PostServiceTests {
         Mockito.verify(userUtils).isSessionUser(ownerOfPostUser);
         Mockito.verify(postRepository).findById(postId);
         Mockito.verify(mapper).writeValueAsString(post);
+        Mockito.verify(responseUtils).createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message));
 
     }
 
     @Test
-    void shouldReturnPostResponseWithIsSuccessFalse_whenPostCannotDeleteFromDatabase() throws JsonProcessingException {
+    void shouldReturnGeneralInformationResponseWithIsSuccessFalse_whenPostCannotDeleteFromDatabase() throws IOException {
         Long postId = 0L;
         String username = "testUser";
+        Boolean isSuccess = false;
+        String message = "Post could not be deleted.";
         DeletePostRequest deletePostRequest = new DeletePostRequest(postId, username);
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null);
-        PostResponse expectedResponse = new PostResponse(false, "Post could not be deleted");
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null, null);
+        GeneralInformationResponse expectedResponse = new GeneralInformationResponse(isSuccess, message);
 
         Mockito.when(userService.findByUsername(username)).thenReturn(user);
         Mockito.when(userUtils.isSessionUser(user)).thenReturn(true);
         Mockito.when(postRepository.findById(postId)).thenReturn(Optional.of(post));
         Mockito.doThrow(new NullPointerException("Exception")).when(postRepository).delete(post);
-        Mockito.when(mapper.writeValueAsString(deletePostRequest)).thenReturn(Mockito.anyString());
+        Mockito.when(mapper.writeValueAsString(deletePostRequest)).thenReturn("String");
+        Mockito.when(responseUtils.createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message)))
+                .thenReturn(expectedResponse);
 
-        PostResponse result = postService.deletePost(deletePostRequest);
+        GeneralInformationResponse result = postService.deletePost(deletePostRequest);
 
         Assertions.assertEquals(expectedResponse, result);
 
@@ -267,6 +319,7 @@ class PostServiceTests {
         Mockito.verify(postRepository).findById(postId);
         Mockito.verify(postRepository).delete(post);
         Mockito.verify(mapper).writeValueAsString(post);
+        Mockito.verify(responseUtils).createGeneralInformationResponse(Mockito.eq(isSuccess), Mockito.eq(message));
 
     }
 
@@ -274,8 +327,8 @@ class PostServiceTests {
     void shouldReturnPost_whenPostFindWithIdInDatabase() {
         long postId = 0L;
         String username = "testUser";
-        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER);
-        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null);
+        User user = new User("test", "user", Gender.MAN, "testUser@test.com", "1111111111", username, "123", Role.USER, null);
+        Post post = new Post(postId, "postTitle", "postContent", 0, 0, user, null, null);
 
         Mockito.when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
