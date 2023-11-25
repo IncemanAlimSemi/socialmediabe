@@ -14,6 +14,7 @@ public interface PostService {
     GeneralInformationResponse createPost(CreatePostRequest createPostRequest) throws IOException;
     GeneralInformationResponse deletePost(DeletePostRequest deletePostRequest) throws IOException;
     Post findById(Long id);
+    void setPostLikeOrUnlike(Boolean isLike, Long id);
     GeneralInformationResponse findByUserOrderByDate(String username) throws IOException;
-
+  
 }

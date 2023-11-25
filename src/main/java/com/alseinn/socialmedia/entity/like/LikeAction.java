@@ -15,7 +15,4 @@ import lombok.NoArgsConstructor;
 public class LikeAction {
     @EmbeddedId
     private LikeActionKey id;
-    @Column(nullable = false)
-    private boolean isLiked;
-
 }

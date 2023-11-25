@@ -66,17 +66,24 @@ public class LikeActionServiceImpl implements LikeActionService {
             try {
                 if (Objects.isNull(likeAction)) {
                     LikeAction newLikeAction = LikeAction.builder()
-                            .isLiked(true)
                             .id(likeActionKey)
                             .build();
 
                     likeActionRepository.save(newLikeAction);
+
+                    if (ActionObjectEnum.POST.equals(likeActionRequest.getType())) {
+                        postService.setPostLikeOrUnlike(true, likeActionRequest.getId());
+                    }
 
                     LOG.info("This " + likeActionRequest.getType().toString() + " liked with success -- Action: "
                             + mapper.writeValueAsString(likeActionRequest));
                     return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("liked"), likeActionRequest.getType().toString()));
                 } else {
                     likeActionRepository.delete(likeAction);
+
+                    if (ActionObjectEnum.POST.equals(likeActionRequest.getType())) {
+                        postService.setPostLikeOrUnlike(false, likeActionRequest.getId());
+                    }
 
                     LOG.info("This " + likeActionRequest.getType().toString() + " unliked with success -- Action: "
                             + mapper.writeValueAsString(likeActionRequest));
@@ -107,4 +114,5 @@ public class LikeActionServiceImpl implements LikeActionService {
 
         return map.get(type).apply(id);
     }
+
 }
