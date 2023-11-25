@@ -6,6 +6,7 @@ import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.image.UploadImageRequest;
 import com.alseinn.socialmedia.response.follow.FollowDataResponse;
 import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
+import com.alseinn.socialmedia.response.image.ImageResponse;
 import com.alseinn.socialmedia.response.user.OtherUserDetailResponse;
 import com.alseinn.socialmedia.response.user.UserDetailResponse;
 import com.alseinn.socialmedia.response.follow.UserFollowersResponse;
@@ -132,12 +133,20 @@ public class UserServiceImpl implements UserService {
                 if (Objects.nonNull(user.getProfileImage())) {
                     imageService.deleteImage(user.getProfileImage());
                 }
-                user.setProfileImage(imageService.uploadImage(uploadImageRequest.getImage()).getImage());
-                userRepository.save(user);
-                LOG.info(MessageFormat.format("Profile picture saved successfully. : {0} - {1} - {2}"
-                        , user.getProfileImage().getId(), user.getProfileImage().getName(), user.getProfileImage().getType()));
-                return responseUtils.createGeneralInformationResponse(true,
-                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("saved.with.success"), PICTURE));
+
+                ImageResponse imageResponse = imageService.uploadImage(uploadImageRequest.getImage());
+                if (imageResponse.getIsSuccess()){
+                    user.setProfileImage(imageService.uploadImage(uploadImageRequest.getImage()).getImage());
+                    userRepository.save(user);
+                    LOG.info(MessageFormat.format("Profile picture saved successfully. : {0} - {1} - {2}"
+                            , user.getProfileImage().getId(), user.getProfileImage().getName(), user.getProfileImage().getType()));
+                    return responseUtils.createGeneralInformationResponse(true,
+                            MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("saved.with.success"), PICTURE));
+                }
+
+                LOG.warning("Profile picture could not be saved.");
+                return responseUtils.createGeneralInformationResponse(false, imageResponse.getMessage());
+
 
             } catch (Exception e) {
                 LOG.warning("Error occurred while saving profile picture: " + e);
