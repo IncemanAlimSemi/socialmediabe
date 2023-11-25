@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     private final ImageService imageService;
     private final ResponseUtils responseUtils;
 
-    private static final Logger LOG = Logger.getLogger(PostServiceImpl.class.getName());
+    private static final Logger LOG = Logger.getLogger(UserServiceImpl.class.getName());
 
     @Override
     public User findByUsername(String username) {
