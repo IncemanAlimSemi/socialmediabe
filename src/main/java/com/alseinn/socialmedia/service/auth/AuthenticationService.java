@@ -6,15 +6,12 @@ import com.alseinn.socialmedia.entity.user.enums.Role;
 import com.alseinn.socialmedia.request.auth.AuthenticationRequest;
 import com.alseinn.socialmedia.request.auth.RegisterRequest;
 import com.alseinn.socialmedia.response.auth.AuthenticationResponse;
-import com.alseinn.socialmedia.utils.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.*;
 import java.util.Optional;
 
 @Service
@@ -25,7 +22,8 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final UserUtils userUtils;
+
+
 
     public AuthenticationResponse register(RegisterRequest request) {
         Optional<User> dbUser = userRepository.findByUsername(request.getUsername());
@@ -42,7 +40,7 @@ public class AuthenticationService {
                 .lastname(request.getLastname())
                 .gender(request.getGender())
                 .email(request.getEmail())
-                .mobilePhone(request.getMobileNumber())
+                .mobileNumber(request.getMobileNumber())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();

@@ -6,18 +6,23 @@ import com.alseinn.socialmedia.entity.post.Post;
 import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.comment.CreateCommentRequest;
 import com.alseinn.socialmedia.request.comment.DeleteCommentRequest;
-import com.alseinn.socialmedia.response.comment.CommentResponse;
+import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import com.alseinn.socialmedia.service.comment.CommentService;
 import com.alseinn.socialmedia.service.post.PostService;
 import com.alseinn.socialmedia.service.user.UserService;
+import com.alseinn.socialmedia.utils.ResponseUtils;
 import com.alseinn.socialmedia.utils.UserUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.logging.Logger;
+
+import static com.alseinn.socialmedia.utils.contants.AppTRConstants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,87 +33,71 @@ public class CommentServiceImpl implements CommentService {
     private final UserUtils userUtils;
     private final ObjectMapper mapper;
     private final PostService postService;
+    private final ResponseUtils responseUtils;
 
     private static final Logger LOG = Logger.getLogger(CommentServiceImpl.class.getName());
 
     @Override
-    public CommentResponse createComment(CreateCommentRequest createCommentRequest) throws JsonProcessingException {
+    public GeneralInformationResponse createComment(CreateCommentRequest createCommentRequest) throws IOException {
         User user = userService.findByUsername(createCommentRequest.getUsername());
 
         if (Objects.nonNull(user)) {
             if (!userUtils.isSessionUser(user)) {
                 LOG.warning("This user is not session user -- Comment: " + mapper.writeValueAsString(createCommentRequest));
-                return CommentResponse.builder()
-                        .isSuccess(false)
-                        .message("This user is not session user.")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.session.user"));
             }
 
-            Post post = postService.findById(createCommentRequest.getPostId());
+            Post post = postService.findById(createCommentRequest.getId());
 
             if (Objects.isNull(post)) {
                 LOG.warning("Post not found -- Comment: " + mapper.writeValueAsString(createCommentRequest));
-                return CommentResponse.builder()
-                        .isSuccess(false)
-                        .message("Post not found")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.found"), POST));
             }
 
             Comment comment = Comment.builder()
-                    .commentContent(createCommentRequest.getContent())
+                    .content(createCommentRequest.getContent())
                     .post(post)
                     .user(user)
+                    .date(new Date(System.currentTimeMillis()))
                     .build();
 
             try {
                 commentRepository.save(comment);
                 LOG.info("Comment created with success -- Comment: " + mapper.writeValueAsString(comment)
                         + " -- Username: " + user.getUsername());
-
-                return CommentResponse.builder()
-                        .isSuccess(true)
-                        .message("Comment created with success")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("created.with.success"), COMMENT));
             } catch (Exception e) {
                 LOG.warning("Comment could not be created -- Comment: " + mapper.writeValueAsString(post)
                         + " -- Username: " + user.getUsername());
-                return CommentResponse.builder()
-                        .isSuccess(false)
-                        .message("Comment could not be created")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.created"), COMMENT));
             }
 
         }
 
-        return userNotFoundResponse(createCommentRequest);
+        LOG.warning("User not found -- Comment: " + mapper.writeValueAsString(createCommentRequest));
+        return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"));
     }
 
     @Override
-    public CommentResponse deleteComment(DeleteCommentRequest deleteCommentRequest) throws JsonProcessingException {
+    public GeneralInformationResponse deleteComment(DeleteCommentRequest deleteCommentRequest) throws IOException {
         User user = userService.findByUsername(deleteCommentRequest.getUsername());
 
         if (Objects.nonNull(user)) {
             if (!userUtils.isSessionUser(user)) {
                 LOG.warning("This user is not session user -- Comment: " + mapper.writeValueAsString(deleteCommentRequest));
-                return CommentResponse.builder()
-                        .isSuccess(false)
-                        .message("This user is not session user.")
-                        .build();
+                return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.session.user"));
             }
 
-            Comment comment = commentRepository.findById(deleteCommentRequest.getCommentId()).orElse(null);
+            Comment comment = findById(deleteCommentRequest.getId());
 
 
             if (Objects.nonNull(comment)) {
                 if (!comment.getUser().getUsername().equals(user.getUsername()) &&
                     !comment.getPost().getUser().getUsername().equals(user.getUsername())
                 ) {
-                    LOG.warning("This user is not owner of post or comment -- Post: " + mapper.writeValueAsString(comment)
+                    LOG.warning("This user is not owner of post or comment -- Comment: " + mapper.writeValueAsString(comment)
                             + "-- Username: " + user.getUsername());
-                    return CommentResponse.builder()
-                            .isSuccess(false)
-                            .message("This user is not owner of post or comment.")
-                            .build();
+                    return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.owner.of.post.or.comment"));
                 }
 
                 try {
@@ -116,36 +105,25 @@ public class CommentServiceImpl implements CommentService {
 
                     LOG.info("Comment deleted with success -- Comment: " + mapper.writeValueAsString(comment)
                             + " -- Username: " + user.getUsername());
-
-                    return CommentResponse.builder()
-                            .isSuccess(true)
-                            .message("Comment deleted with success")
-                            .build();
+                    return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("deleted.with.success"), COMMENT));
                 } catch (Exception e) {
                     LOG.warning("Comment could not be deleted -- Comment: " + mapper.writeValueAsString(comment)
                             + " -- Username: " + user.getUsername());
-                    return CommentResponse.builder()
-                            .isSuccess(false)
-                            .message("Comment could not be deleted")
-                            .build();
+                    return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.deleted"), COMMENT));
                 }
             }
-            LOG.warning("Comment not found -- Post: " + mapper.writeValueAsString(deleteCommentRequest)
+            LOG.warning("Comment not found -- Comment: " + mapper.writeValueAsString(deleteCommentRequest)
                     + "-- Username: " + user.getUsername());
-            return CommentResponse.builder()
-                    .isSuccess(false)
-                    .message("Comment not found")
-                    .build();
+            return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.found"), COMMENT));
         }
 
-        return userNotFoundResponse(deleteCommentRequest);
+        LOG.warning("User not found -- Comment: " + mapper.writeValueAsString(deleteCommentRequest));
+        return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"));
     }
 
-    private <T> CommentResponse userNotFoundResponse(T T) throws JsonProcessingException {
-        LOG.warning("User not found -- Comment: " + mapper.writeValueAsString(T));
-        return CommentResponse.builder()
-                .message("User not found")
-                .isSuccess(false)
-                .build();
+    @Override
+    public Comment findById(Long id) {
+        return commentRepository.findById(id).orElse(null);
     }
+
 }

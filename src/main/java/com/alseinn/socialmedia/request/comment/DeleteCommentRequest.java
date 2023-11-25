@@ -9,11 +9,11 @@ import org.springframework.lang.NonNull;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
+@NoArgsConstructor
 public class DeleteCommentRequest {
 
     @NonNull
-    private Long commentId;
+    private Long id;
     @NonNull
     private String username;
 }

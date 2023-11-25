@@ -1,17 +1,16 @@
-package com.alseinn.socialmedia.response.user;
+package com.alseinn.socialmedia.response.like;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserFollowingsResponse {
+public class ActionResponse {
+
     private boolean isSuccess;
-    private Set<FollowDataResponse> followings;
+    private String message;
 }

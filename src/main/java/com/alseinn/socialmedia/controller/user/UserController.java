@@ -1,18 +1,32 @@
 package com.alseinn.socialmedia.controller.user;
 
-import com.alseinn.socialmedia.response.user.UserFollowersResponse;
-import com.alseinn.socialmedia.response.user.UserFollowingsResponse;
+import com.alseinn.socialmedia.request.image.UploadImageRequest;
+import com.alseinn.socialmedia.response.follow.UserFollowersResponse;
+import com.alseinn.socialmedia.response.follow.UserFollowingsResponse;
+import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import com.alseinn.socialmedia.service.user.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+
+    @GetMapping("/profile/{username}")
+    public ResponseEntity<GeneralInformationResponse> getProfile(@PathVariable String username) throws IOException {
+        return ResponseEntity.ok(userService.getProfile(username));
+    }
+
+    @GetMapping("/profile/other/{username}")
+    public ResponseEntity<GeneralInformationResponse> getOtherProfile(@PathVariable String username) throws IOException {
+        return ResponseEntity.ok(userService.getOtherProfile(username));
+    }
 
     @GetMapping("/followers/{username}")
     public ResponseEntity<UserFollowersResponse> getFollowers(@PathVariable String username) throws JsonProcessingException {
@@ -24,5 +38,15 @@ public class UserController {
         return ResponseEntity.ok(userService.getFollowings(username));
     }
 
+
+    @GetMapping("/picture/upload")
+    public ResponseEntity<GeneralInformationResponse> saveProfilePicture(@ModelAttribute UploadImageRequest uploadImageRequest) throws IOException {
+        return ResponseEntity.ok(userService.updateProfilePicture(uploadImageRequest));
+    }
+
+    @GetMapping("/picture/remove")
+    public ResponseEntity<GeneralInformationResponse> removeProfilePicture() throws IOException {
+        return ResponseEntity.ok(userService.removeProfilePicture());
+    }
 
 }

@@ -9,11 +9,11 @@ import org.springframework.lang.NonNull;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
+@NoArgsConstructor
 public class CreateCommentRequest {
 
     @NonNull
-    private Long postId;
+    private Long id;
     @NonNull
     private String content;
     @NonNull

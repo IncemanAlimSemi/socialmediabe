@@ -1,5 +1,6 @@
 package com.alseinn.socialmedia.request.post;
 
+import jakarta.annotation.Nonnull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,11 +13,11 @@ import org.springframework.lang.NonNull;
 @NoArgsConstructor(force = true)
 public class CreatePostRequest {
 
-    @NonNull
+    @Nonnull
     private String username;
     @NonNull
-    private String postTitle;
+    private String title;
     @NonNull
-    private String postContent;
+    private String content;
 
 }
