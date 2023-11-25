@@ -26,4 +26,9 @@ public class PostController {
     public ResponseEntity<GeneralInformationResponse> deletePost(@RequestBody DeletePostRequest deletePostRequest) throws IOException {
         return ResponseEntity.ok(postService.deletePost(deletePostRequest));
     }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<GeneralInformationResponse> findByUserOrderByDate(@PathVariable String username) throws IOException {
+        return ResponseEntity.ok(postService.findByUserOrderByDate(username));
+    }
 }
