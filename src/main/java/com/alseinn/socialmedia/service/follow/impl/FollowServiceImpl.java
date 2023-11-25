@@ -27,7 +27,7 @@ public class FollowServiceImpl implements FollowService {
     private final ObjectMapper mapper;
     private final ResponseUtils responseUtils;
 
-    private static final Logger LOG = Logger.getLogger(PostServiceImpl.class.getName());
+    private static final Logger LOG = Logger.getLogger(FollowServiceImpl.class.getName());
 
     @Override
     public GeneralInformationResponse follow(FollowRequest followRequest) throws JsonProcessingException {
