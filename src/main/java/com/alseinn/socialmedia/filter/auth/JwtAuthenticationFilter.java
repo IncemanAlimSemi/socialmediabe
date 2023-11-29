@@ -1,4 +1,4 @@
-package com.alseinn.socialmedia.config;
+package com.alseinn.socialmedia.filter.auth;
 
 import com.alseinn.socialmedia.service.auth.JwtService;
 import jakarta.servlet.FilterChain;

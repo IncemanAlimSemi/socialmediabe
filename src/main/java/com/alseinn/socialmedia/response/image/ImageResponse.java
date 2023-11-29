@@ -12,6 +12,7 @@ public class ImageResponse extends GeneralInformationResponse {
     private Image image;
 
     @Builder(builderMethodName = "imageResponseBuilder")
+    @SuppressWarnings(value = "unused")
     public ImageResponse(Boolean isSuccess, String message, Image image) {
         super(isSuccess, message);
         this.image = image;

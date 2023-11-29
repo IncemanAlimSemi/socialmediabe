@@ -12,13 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-import static com.alseinn.socialmedia.utils.contants.AppTRConstants.LOCALIZATION;
-import static com.alseinn.socialmedia.utils.contants.AppTRConstants.PICTURE;
+import static com.alseinn.socialmedia.utils.contants.AppTRConstants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,26 +27,26 @@ public class ImageServiceImpl implements ImageService {
     private static final Logger LOG = Logger.getLogger(ImageServiceImpl.class.getName());
 
     @Override
-    public ImageResponse uploadImage(MultipartFile file) throws IOException {
+    public ImageResponse uploadImage(MultipartFile file) {
         if (Objects.nonNull(file) && !file.isEmpty()) {
             if (!isImage(file.getContentType())) {
-                LOG.warning("File is not an image: " + file.getOriginalFilename());
+                LOG.warning(responseUtils.getMessage("not.an.image", file.getOriginalFilename()));
                 return ImageResponse.imageResponseBuilder()
                         .isSuccess(false)
-                        .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("not.an.image"), PICTURE))
+                        .message(responseUtils.getMessage("not.an.image", file.getOriginalFilename()))
                         .build();
             }
             try{
-                    Image image = imageRepository.save(Image.builder()
+                Image image = imageRepository.save(Image.builder()
                         .name(StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())))
                         .type(file.getContentType())
                         .imageData(ImageUtils.compressImage(file.getBytes()))
                         .build());
 
-                LOG.info("Image saved with success: " + image.getName());
+                LOG.info(responseUtils.getMessage("saved.with.success", IMAGE) + ": " + image.getName());
                 return ImageResponse.imageResponseBuilder()
                         .isSuccess(true)
-                        .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("saved.with.success"), PICTURE))
+                        .message(responseUtils.getMessage("saved.with.success", IMAGE))
                         .image(image)
                         .build();
             }catch (Exception e) {
@@ -56,16 +54,15 @@ public class ImageServiceImpl implements ImageService {
                         , file.getOriginalFilename(), e.getMessage()));
                 return ImageResponse.imageResponseBuilder()
                         .isSuccess(false)
-                        .message(MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.saved"), PICTURE))
+                        .message(responseUtils.getMessage("could.not.be.saved", IMAGE))
                         .build();
-
             }
         }
 
-        LOG.warning("Image is null!");
-       return ImageResponse.imageResponseBuilder()
+        LOG.warning(responseUtils.getMessage("null", IMAGE));
+        return ImageResponse.imageResponseBuilder()
                 .isSuccess(false)
-                .message(ResponseUtils.getProperties(LOCALIZATION).getProperty("empty"))
+                .message(responseUtils.getMessage("null", IMAGE))
                 .build();
 
     }
@@ -74,30 +71,30 @@ public class ImageServiceImpl implements ImageService {
     public byte[] getImage(Long id) {
         Image image = imageRepository.findById(id).orElse(null);
         if (Objects.isNull(image)) {
-            LOG.warning("Image not found with id: " + id);
+            LOG.warning(responseUtils.getMessage("this.id.is.not.found.in.database", IMAGE, id));
             return null;
         }
         return ImageUtils.decompressImage(image.getImageData());
     }
 
     @Override
-    public GeneralInformationResponse deleteImage(Image image) throws IOException {
+    public GeneralInformationResponse deleteImage(Image image) {
         if (Objects.nonNull(image)){
             try {
                 imageRepository.delete(image);
-                LOG.info("Image deleted with success: " + image.getName());
+                LOG.info(responseUtils.getMessage("deleted.with.success", IMAGE) + ": " + image.getName());
                 return responseUtils.createGeneralInformationResponse(true,
-                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("deleted.with.success"), PICTURE));
+                        responseUtils.getMessage("deleted.with.success", IMAGE));
             } catch (Exception e) {
                 LOG.warning("Error occurred while deleting image: " + e);
                 return responseUtils.createGeneralInformationResponse(false,
-                        MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("could.not.be.deleted"), PICTURE));
+                        responseUtils.getMessage("could.not.be.deleted", IMAGE));
             }
         }
 
-        LOG.warning("Image is null!");
+        LOG.warning(responseUtils.getMessage("null", IMAGE));
         return responseUtils.createGeneralInformationResponse(false,
-                MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("empty"), PICTURE));
+                responseUtils.getMessage("null", IMAGE));
 
     }
 
