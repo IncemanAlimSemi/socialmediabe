@@ -18,6 +18,7 @@ public class OtherUserDetailResponse extends GeneralInformationResponse {
     private byte[] profileImage;
 
     @Builder(builderMethodName = "otherUserDetailResponseBuilder")
+    @SuppressWarnings(value = "unused")
     public OtherUserDetailResponse(Boolean isSuccess, String message, String username, String firstname, String lastname, String email, String mobileNumber, byte[] profileImage) {
         super(isSuccess, message);
         this.username = username;

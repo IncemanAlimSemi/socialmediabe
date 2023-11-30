@@ -53,8 +53,8 @@ public class User extends AbstractUser implements UserDetails {
 
     @ManyToMany
     @JoinTable(name = "follow",
-            joinColumns = @JoinColumn(name = "userId", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "followerId", referencedColumnName = "id")
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "id")
     )
     @JsonIgnore
     private Set<User> followers = new HashSet<>();

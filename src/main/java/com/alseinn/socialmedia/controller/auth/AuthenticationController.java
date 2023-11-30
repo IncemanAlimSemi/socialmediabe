@@ -4,14 +4,14 @@ import com.alseinn.socialmedia.request.auth.AuthenticationRequest;
 import com.alseinn.socialmedia.request.auth.RegisterRequest;
 import com.alseinn.socialmedia.response.auth.AuthenticationResponse;
 import com.alseinn.socialmedia.service.auth.AuthenticationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("${default.api.path}/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
@@ -19,14 +19,16 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request
+            @Valid @RequestBody RegisterRequest request,
+            @SuppressWarnings(value = "unused") BindingResult bindingResult
     ){
         return ResponseEntity.ok(authenticationService.register(request));
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody AuthenticationRequest request
+            @Valid @RequestBody AuthenticationRequest request,
+            @SuppressWarnings(value = "unused") BindingResult bindingResult
     ) {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }

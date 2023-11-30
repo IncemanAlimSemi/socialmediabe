@@ -3,7 +3,6 @@ package com.alseinn.socialmedia.response.user;
 import com.alseinn.socialmedia.entity.user.enums.Role;
 import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -26,6 +25,7 @@ public class UserDetailResponse extends GeneralInformationResponse {
     private Role role;
 
     @Builder(builderMethodName = "userDetailResponseBuilder")
+    @SuppressWarnings(value = "unused")
     public UserDetailResponse(Boolean isSuccess, String message, String username, String firstname, String lastname, String email, String mobileNumber, byte[] profileImage, Role role) {
         super(isSuccess, message);
         this.username = username;

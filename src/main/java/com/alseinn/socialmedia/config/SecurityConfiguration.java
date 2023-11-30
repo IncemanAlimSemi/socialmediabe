@@ -1,5 +1,7 @@
 package com.alseinn.socialmedia.config;
 
+import com.alseinn.socialmedia.filter.auth.JwtAuthenticationFilter;
+import com.alseinn.socialmedia.filter.localization.LocaleFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +21,7 @@ public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final LocaleFilter localeFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,6 +39,7 @@ public class SecurityConfiguration {
                 )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(localeFilter, JwtAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults());
 
 

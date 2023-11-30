@@ -3,7 +3,6 @@ package com.alseinn.socialmedia.response.user;
 import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import com.alseinn.socialmedia.response.post.PostDetailResponse;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
@@ -16,6 +15,7 @@ public class UsersPostResponse extends GeneralInformationResponse {
     List<PostDetailResponse> postDetailResponses;
 
     @Builder(builderMethodName = "builderWithExtendFields")
+    @SuppressWarnings(value = "unused")
     public UsersPostResponse(boolean isSuccess, String message, String username, List<PostDetailResponse> postDetailResponses) {
         super(isSuccess, message);
         this.username = username;

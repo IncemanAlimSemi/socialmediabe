@@ -1,19 +1,21 @@
 package com.alseinn.socialmedia.request.post;
 
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 public class DeletePostRequest {
-
-    @NonNull
+    @NotNull(message = "{id.can.not.be.empty}")
+    @Min(message = "{out.of.range}", value = 1)
+    @Max(message = "{out.of.range}", value = Long.MAX_VALUE)
     private Long id;
-    @NonNull
+    @NotBlank(message = "{username.can.not.be.empty}")
+    @Pattern(regexp = "^[a-zA-Z0-9-][a-zA-Z0-9.-]{2,14}$", message = "{username.validation.message}")
     private String username;
 }

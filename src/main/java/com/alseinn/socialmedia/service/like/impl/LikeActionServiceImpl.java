@@ -18,13 +18,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-import static com.alseinn.socialmedia.utils.contants.AppTRConstants.*;
+import static com.alseinn.socialmedia.utils.contants.AppTRConstants.ACTION;
 
 @Service
 @RequiredArgsConstructor
@@ -46,13 +45,13 @@ public class LikeActionServiceImpl implements LikeActionService {
 
         if (Objects.nonNull(user)) {
             if (!userUtils.isSessionUser(user)) {
-                LOG.warning("This user is not session user -- Action: " + mapper.writeValueAsString(likeActionRequest));
-                return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("this.user.is.not.session.user"));
+                LOG.warning(responseUtils.getMessage("this.user.is.not.session.user") + " -- Action: " + mapper.writeValueAsString(likeActionRequest));
+                return responseUtils.createGeneralInformationResponse(false, responseUtils.getMessage("this.user.is.not.session.user"));
             }
 
             if (isActionObjectNotFoundInDatabase(likeActionRequest.getType(), likeActionRequest.getId())) {
-                LOG.warning("This action id is not found in database -- Action: " + mapper.writeValueAsString(likeActionRequest));
-                return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("this.id.is.not.found.in.database"), ACTION));
+                LOG.warning(responseUtils.getMessage("this.id.is.not.found.in.database", ACTION, likeActionRequest.getId()) + " -- Action: " + mapper.writeValueAsString(likeActionRequest));
+                return responseUtils.createGeneralInformationResponse(false, responseUtils.getMessage("this.id.is.not.found.in.database", ACTION, likeActionRequest.getId()));
             }
 
             LikeActionKey likeActionKey = LikeActionKey.builder()
@@ -77,7 +76,7 @@ public class LikeActionServiceImpl implements LikeActionService {
 
                     LOG.info("This " + likeActionRequest.getType().toString() + " liked with success -- Action: "
                             + mapper.writeValueAsString(likeActionRequest));
-                    return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("liked"), likeActionRequest.getType().toString()));
+                    return responseUtils.createGeneralInformationResponse(true, responseUtils.getMessage("liked", likeActionRequest.getType().toString()));
                 } else {
                     likeActionRepository.delete(likeAction);
 
@@ -87,18 +86,18 @@ public class LikeActionServiceImpl implements LikeActionService {
 
                     LOG.info("This " + likeActionRequest.getType().toString() + " unliked with success -- Action: "
                             + mapper.writeValueAsString(likeActionRequest));
-                    return responseUtils.createGeneralInformationResponse(true, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("unliked"), likeActionRequest.getType().toString()));
+                    return responseUtils.createGeneralInformationResponse(true, responseUtils.getMessage("unliked", likeActionRequest.getType().toString()));
                 }
             } catch (Exception e) {
                 LOG.warning("This " + likeActionRequest.getType().toString() + " not liked/unliked -- Action: "
                         + mapper.writeValueAsString(likeActionRequest));
-                return responseUtils.createGeneralInformationResponse(false, MessageFormat.format(ResponseUtils.getProperties(LOCALIZATION).getProperty("liked.unliked"), likeActionRequest.getType().toString()));
+                return responseUtils.createGeneralInformationResponse(false, responseUtils.getMessage("liked.unliked" , likeActionRequest.getType().toString()));
             }
 
         }
 
-        LOG.warning("User not found -- Action: " + mapper.writeValueAsString(likeActionRequest));
-        return responseUtils.createGeneralInformationResponse(false, ResponseUtils.getProperties(LOCALIZATION).getProperty("user.not.found"));
+        LOG.warning(responseUtils.getMessage("user.not.found") + " -- Action: " + mapper.writeValueAsString(likeActionRequest));
+        return responseUtils.createGeneralInformationResponse(false, responseUtils.getMessage("user.not.found"));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.alseinn.socialmedia.request.image;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UploadImageRequest {
-
+    @NotBlank(message = "{image.can.not.be.empty}")
     private MultipartFile image;
 }
