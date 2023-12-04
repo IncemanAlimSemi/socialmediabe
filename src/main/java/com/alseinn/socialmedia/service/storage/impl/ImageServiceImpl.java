@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -41,6 +42,8 @@ public class ImageServiceImpl implements ImageService {
                         .name(StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())))
                         .type(file.getContentType())
                         .imageData(ImageUtils.compressImage(file.getBytes()))
+                        .timeCreated(new Date(System.currentTimeMillis()))
+                        .timeModified(new Date(System.currentTimeMillis()))
                         .build());
 
                 LOG.info(responseUtils.getMessage("saved.with.success", IMAGE) + ": " + image.getName());

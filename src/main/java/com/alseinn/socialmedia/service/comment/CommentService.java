@@ -8,10 +8,7 @@ import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import java.io.IOException;
 
 public interface CommentService {
-
     GeneralInformationResponse createComment(CreateCommentRequest createCommentRequest) throws IOException;
-
     GeneralInformationResponse deleteComment(DeleteCommentRequest deleteCommentRequest) throws IOException;
-
     Comment findById(Long id);
 }

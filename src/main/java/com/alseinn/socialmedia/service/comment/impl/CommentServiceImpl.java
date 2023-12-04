@@ -59,6 +59,8 @@ public class CommentServiceImpl implements CommentService {
                     .post(post)
                     .user(user)
                     .date(new Date(System.currentTimeMillis()))
+                    .timeCreated(new Date(System.currentTimeMillis()))
+                    .timeModified(new Date(System.currentTimeMillis()))
                     .build();
 
             try {

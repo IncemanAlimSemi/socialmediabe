@@ -53,7 +53,8 @@ public class PostServiceImpl implements PostService {
                     .content(createPostRequest.getContent())
                     .postLike(0)
                     .user(user)
-                    .date(new Date(System.currentTimeMillis()))
+                    .timeCreated(new Date(System.currentTimeMillis()))
+                    .timeModified(new Date(System.currentTimeMillis()))
                     .build();
 
             try {
@@ -161,7 +162,7 @@ public class PostServiceImpl implements PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .like(post.getPostLike())
-                .date(post.getDate())
+                .date(post.getTimeCreated())
                 .commentDetailResponses(createCommentDetailResponses(post.getComments()))
                 .build())
         );
