@@ -24,7 +24,6 @@ public class ValidationAspect {
     public final ResponseUtils responseUtils;
 
     @Around("execution(* *(@org.springframework.web.bind.annotation.RequestBody (*), org.springframework.validation.BindingResult, ..))" +
-            " || execution(* *(@org.springframework.web.bind.annotation.PathVariable (*), org.springframework.validation.BindingResult, ..))" +
             " || execution(* *(@org.springframework.web.bind.annotation.ModelAttribute (*), org.springframework.validation.BindingResult, ..))")
     public Object validateInput(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
