@@ -1,26 +1,26 @@
 package com.alseinn.socialmedia.service.like.impl;
 
 import com.alseinn.socialmedia.dao.user.LikeActionRepository;
+import com.alseinn.socialmedia.entity.item.Item;
 import com.alseinn.socialmedia.entity.like.LikeAction;
-import com.alseinn.socialmedia.entity.like.LikeActionKey;
 import com.alseinn.socialmedia.entity.like.enums.ActionObjectEnum;
 import com.alseinn.socialmedia.entity.user.User;
 import com.alseinn.socialmedia.request.like.LikeActionRequest;
 import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
-import com.alseinn.socialmedia.service.comment.CommentService;
 import com.alseinn.socialmedia.service.like.LikeActionService;
 import com.alseinn.socialmedia.service.post.PostService;
 import com.alseinn.socialmedia.service.user.UserService;
 import com.alseinn.socialmedia.utils.ResponseUtils;
 import com.alseinn.socialmedia.utils.UserUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Table;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 import static com.alseinn.socialmedia.utils.contants.AppTRConstants.ACTION;
@@ -33,9 +33,9 @@ public class LikeActionServiceImpl implements LikeActionService {
     private final UserUtils userUtils;
     private final ObjectMapper mapper;
     private final PostService postService;
-    private final CommentService commentService;
     private final LikeActionRepository likeActionRepository;
     private final ResponseUtils responseUtils;
+    private final EntityManager entityManager;
 
     private static final Logger LOG = Logger.getLogger(LikeActionServiceImpl.class.getName());
 
@@ -49,23 +49,21 @@ public class LikeActionServiceImpl implements LikeActionService {
                 return responseUtils.createGeneralInformationResponse(false, responseUtils.getMessage("this.user.is.not.session.user"));
             }
 
-            if (isActionObjectNotFoundInDatabase(likeActionRequest.getType(), likeActionRequest.getId())) {
+            if (!isActionObjectFoundInDatabase(likeActionRequest.getType(), likeActionRequest.getId())) {
                 LOG.warning(responseUtils.getMessage("this.id.is.not.found.in.database", ACTION, likeActionRequest.getId()) + " -- Action: " + mapper.writeValueAsString(likeActionRequest));
                 return responseUtils.createGeneralInformationResponse(false, responseUtils.getMessage("this.id.is.not.found.in.database", ACTION, likeActionRequest.getId()));
             }
 
-            LikeActionKey likeActionKey = LikeActionKey.builder()
-                    .actionObject(likeActionRequest.getType())
-                    .actionObjectId(likeActionRequest.getId())
-                    .username(likeActionRequest.getUsername())
-                    .build();
-
-            LikeAction likeAction = findById(likeActionKey);
+            LikeAction likeAction = findByUsernameAndActionObjectAndActionObjectId(likeActionRequest.getUsername(), likeActionRequest.getType(), likeActionRequest.getId());
 
             try {
                 if (Objects.isNull(likeAction)) {
                     LikeAction newLikeAction = LikeAction.builder()
-                            .id(likeActionKey)
+                            .username(likeActionRequest.getUsername())
+                            .actionObject(likeActionRequest.getType())
+                            .actionObjectId(likeActionRequest.getId())
+                            .timeCreated(new Date(System.currentTimeMillis()))
+                            .timeModified(new Date(System.currentTimeMillis()))
                             .build();
 
                     likeActionRepository.save(newLikeAction);
@@ -101,17 +99,18 @@ public class LikeActionServiceImpl implements LikeActionService {
     }
 
     @Override
-    public LikeAction findById(LikeActionKey id) {
+    public LikeAction findById(Long id) {
         return likeActionRepository.findById(id).orElse(null);
     }
 
-    private Boolean isActionObjectNotFoundInDatabase(ActionObjectEnum type, Long id) {
-        final HashMap<ActionObjectEnum, Function<Long, Boolean>> map = new HashMap<>() {{
-            put(ActionObjectEnum.POST, id -> Objects.isNull(postService.findById(id)));
-            put(ActionObjectEnum.COMMENT, id -> Objects.isNull(commentService.findById(id)));
-        }};
+    @Override
+    public LikeAction findByUsernameAndActionObjectAndActionObjectId(String username, ActionObjectEnum type, Long id) {
+        return likeActionRepository.findByUsernameAndActionObjectAndActionObjectId(username, type, id).orElse(null);
+    }
 
-        return map.get(type).apply(id);
+    private Boolean isActionObjectFoundInDatabase(ActionObjectEnum type, Long id) {
+        Item item = entityManager.find(Item.class, id);
+        return Objects.nonNull(item) && type.toString().equalsIgnoreCase(item.getClass().getAnnotation(Table.class).name());
     }
 
 }

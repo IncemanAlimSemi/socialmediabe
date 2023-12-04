@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -43,6 +44,8 @@ public class AuthenticationService {
                 .mobileNumber(request.getMobileNumber())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
+                .timeCreated(new Date(System.currentTimeMillis()))
+                .timeModified(new Date(System.currentTimeMillis()))
                 .build();
 
         userRepository.save(user);
