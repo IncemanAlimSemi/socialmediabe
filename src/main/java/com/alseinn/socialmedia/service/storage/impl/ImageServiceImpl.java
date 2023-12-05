@@ -2,7 +2,6 @@ package com.alseinn.socialmedia.service.storage.impl;
 
 import com.alseinn.socialmedia.dao.image.ImageRepository;
 import com.alseinn.socialmedia.entity.image.Image;
-import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import com.alseinn.socialmedia.response.image.ImageResponse;
 import com.alseinn.socialmedia.service.storage.ImageService;
 import com.alseinn.socialmedia.utils.ImageUtils;
@@ -81,22 +80,22 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public GeneralInformationResponse deleteImage(Image image) {
+    public void deleteImage(Image image) {
         if (Objects.nonNull(image)){
             try {
                 imageRepository.delete(image);
                 LOG.info(responseUtils.getMessage("deleted.with.success", IMAGE) + ": " + image.getName());
-                return responseUtils.createGeneralInformationResponse(true,
+                responseUtils.createGeneralInformationResponse(true,
                         responseUtils.getMessage("deleted.with.success", IMAGE));
             } catch (Exception e) {
                 LOG.warning("Error occurred while deleting image: " + e);
-                return responseUtils.createGeneralInformationResponse(false,
+                responseUtils.createGeneralInformationResponse(false,
                         responseUtils.getMessage("could.not.be.deleted", IMAGE));
             }
         }
 
         LOG.warning(responseUtils.getMessage("null", IMAGE));
-        return responseUtils.createGeneralInformationResponse(false,
+        responseUtils.createGeneralInformationResponse(false,
                 responseUtils.getMessage("null", IMAGE));
 
     }

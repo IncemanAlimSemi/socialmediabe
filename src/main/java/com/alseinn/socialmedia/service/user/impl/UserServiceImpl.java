@@ -128,13 +128,19 @@ public class UserServiceImpl implements UserService {
         User user = userUtils.getUserFromSecurityContext();
         if (Objects.nonNull(user)) {
             try {
+
                 if (Objects.nonNull(user.getProfileImage())) {
-                    imageService.deleteImage(user.getProfileImage());
+                    if (!removeProfilePicture().getIsSuccess()) {
+                        LOG.warning(responseUtils.getMessage("could.not.be.removed", PROFILE_PICTURE));
+                        return responseUtils.createGeneralInformationResponse(false,
+                                responseUtils.getMessage("could.not.be.removed", PROFILE_PICTURE));
+                    }
+                    LOG.info(responseUtils.getMessage("removed.with.success", PROFILE_PICTURE));
                 }
 
                 ImageResponse imageResponse = imageService.uploadImage(uploadImageRequest.getImage());
                 if (imageResponse.getIsSuccess()){
-                    user.setProfileImage(imageService.uploadImage(uploadImageRequest.getImage()).getImage());
+                    user.setProfileImage(imageResponse.getImage());
                     userRepository.save(user);
                     LOG.info(MessageFormat.format(responseUtils.getMessage("saved.with.success", IMAGE) + ": {0} - {1} - {2}"
                             , user.getProfileImage().getId(), user.getProfileImage().getName(), user.getProfileImage().getType()));

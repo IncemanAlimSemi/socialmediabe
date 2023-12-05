@@ -1,7 +1,6 @@
 package com.alseinn.socialmedia.service.storage;
 
 import com.alseinn.socialmedia.entity.image.Image;
-import com.alseinn.socialmedia.response.general.GeneralInformationResponse;
 import com.alseinn.socialmedia.response.image.ImageResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,5 +12,5 @@ public interface ImageService {
 
     byte[] getImage(Long id) throws IOException;
 
-    GeneralInformationResponse deleteImage(Image image) throws IOException;
+    void deleteImage(Image image) throws IOException;
 }
