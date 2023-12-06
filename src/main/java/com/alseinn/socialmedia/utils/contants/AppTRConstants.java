@@ -9,4 +9,6 @@ public interface AppTRConstants {
     String IMAGE = "Image";
     String PROFILE_PICTURE = "Profile picture";
     String DECOMPRESS = "DECOMPRESS";
+    String FOLLOWERS = "Followers";
+    String FOLLOWINGS = "Followings";
 }
