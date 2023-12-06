@@ -22,7 +22,7 @@ public class LikeActionController {
     private final LikeActionService likeActionService;
 
     @PostMapping()
-    public ResponseEntity<GeneralInformationResponse> follow(
+    public ResponseEntity<GeneralInformationResponse> like(
             @Valid @RequestBody LikeActionRequest likeActionRequest,
             @SuppressWarnings(value = "unused") BindingResult bindingResult
     ) throws IOException {
