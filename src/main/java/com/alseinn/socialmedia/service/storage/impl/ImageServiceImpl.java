@@ -76,6 +76,7 @@ public class ImageServiceImpl implements ImageService {
             LOG.warning(responseUtils.getMessage("this.id.is.not.found.in.database", IMAGE, id));
             return null;
         }
+        LOG.warning(responseUtils.getMessage("created.with.success", DECOMPRESS));
         return ImageUtils.decompressImage(image.getImageData());
     }
 
@@ -85,19 +86,11 @@ public class ImageServiceImpl implements ImageService {
             try {
                 imageRepository.delete(image);
                 LOG.info(responseUtils.getMessage("deleted.with.success", IMAGE) + ": " + image.getName());
-                responseUtils.createGeneralInformationResponse(true,
-                        responseUtils.getMessage("deleted.with.success", IMAGE));
             } catch (Exception e) {
                 LOG.warning("Error occurred while deleting image: " + e);
-                responseUtils.createGeneralInformationResponse(false,
-                        responseUtils.getMessage("could.not.be.deleted", IMAGE));
             }
         }
-
         LOG.warning(responseUtils.getMessage("null", IMAGE));
-        responseUtils.createGeneralInformationResponse(false,
-                responseUtils.getMessage("null", IMAGE));
-
     }
 
     private boolean isImage(String contentType) {
