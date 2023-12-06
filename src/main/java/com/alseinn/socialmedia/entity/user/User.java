@@ -54,8 +54,12 @@ public class User extends AbstractUser implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "id")
     )
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @JsonIgnore
     private Set<User> followers = new HashSet<>();
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @ManyToMany(mappedBy = "followers", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<User> followings = new HashSet<>();

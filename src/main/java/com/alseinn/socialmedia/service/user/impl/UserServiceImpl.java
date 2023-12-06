@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
             return getUserFollowersResponse(user);
         }
         LOG.warning(responseUtils.getMessage("can.not.be.null", USER) + " -- Username: " + mapper.writeValueAsString(username));
-        return createUserFollowersResponse(false, new HashSet<>(0));
+        return createUserFollowersResponse(false, responseUtils.getMessage("user.not.found"), new HashSet<>(0));
 
     }
 
@@ -117,8 +117,8 @@ public class UserServiceImpl implements UserService {
         if (Objects.nonNull(user)) {
             return getUserFollowingsResponse(user);
         }
-        LOG.warning(responseUtils.getMessage("can.not.be.null", USER) + " -- Username: " + mapper.writeValueAsString(username));
-        return createUserFollowingsResponse(false, new HashSet<>(0));
+        LOG.warning(responseUtils.getMessage("user.not.found") + " -- Username: " + mapper.writeValueAsString(username));
+        return createUserFollowingsResponse(false, responseUtils.getMessage("user.not.found"), new HashSet<>(0));
 
     }
 
@@ -199,7 +199,7 @@ public class UserServiceImpl implements UserService {
                 .username(follower.getUsername())
                 .build()).collect(Collectors.toSet());
 
-        return createUserFollowersResponse(true, userFollowersDataResponses);
+        return createUserFollowersResponse(true, responseUtils.getMessage("listed.with.success", FOLLOWERS), userFollowersDataResponses);
     }
 
     private UserFollowingsResponse getUserFollowingsResponse(User user) {
@@ -207,18 +207,20 @@ public class UserServiceImpl implements UserService {
                 .username(following.getUsername())
                 .build()).collect(Collectors.toSet());
 
-        return createUserFollowingsResponse(true, userFollowingsDataResponses);
+        return createUserFollowingsResponse(true, responseUtils.getMessage("listed.with.success", FOLLOWINGS), userFollowingsDataResponses);
     }
 
-    public UserFollowersResponse createUserFollowersResponse(Boolean isSuccess, Set<FollowDataResponse> followers) {
-        return UserFollowersResponse.builder()
+    public UserFollowersResponse createUserFollowersResponse(Boolean isSuccess, String message, Set<FollowDataResponse> followers) {
+        return UserFollowersResponse.userFollowersResponseBuilder()
+                .message(message)
                 .followers(followers)
                 .isSuccess(isSuccess)
                 .build();
     }
 
-    public UserFollowingsResponse createUserFollowingsResponse(Boolean isSuccess, Set<FollowDataResponse> followings) {
-        return UserFollowingsResponse.builder()
+    public UserFollowingsResponse createUserFollowingsResponse(Boolean isSuccess, String message, Set<FollowDataResponse> followings) {
+        return UserFollowingsResponse.userFollowingsResponseBuilder()
+                .message(message)
                 .followings(followings)
                 .isSuccess(isSuccess)
                 .build();
