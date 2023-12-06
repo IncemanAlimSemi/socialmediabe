@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
-
+    Optional<User> findByEmail(String email);
     @Query("SELECT COUNT(f) > 0 FROM User u JOIN u.followings f WHERE u.id = :userId AND f.id = :followId")
     boolean checkIsFollowExist(@Param("userId") Long userId, @Param("followId") Long followId);
 

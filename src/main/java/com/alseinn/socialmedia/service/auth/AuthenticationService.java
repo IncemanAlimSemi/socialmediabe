@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -23,7 +24,6 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-
 
 
     public AuthenticationResponse register(RegisterRequest request) {
@@ -57,17 +57,30 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        User user = getUserFromUsernameOrEmail(request.getCredential());
+
+        if (Objects.isNull(user)) {
+            return AuthenticationResponse.builder()
+                    .token(null)
+                    .build();
+        }
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                request.getUsername(), request.getPassword());
+                user.getUsername(), request.getPassword());
 
         authenticationManager.authenticate(auth);
-
-        var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
 
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+
+    private User getUserFromUsernameOrEmail(String credential) {
+        if (credential.contains("@")) {
+            return userRepository.findByEmail(credential).orElse(null);
+        } else {
+            return userRepository.findByUsername(credential).orElse(null);
+        }
     }
 }

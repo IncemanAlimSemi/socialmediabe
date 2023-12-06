@@ -12,9 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationRequest {
-    @NotBlank(message = "{username.can.not.be.empty}")
-    @Pattern(regexp = "^[a-zA-Z0-9-][a-zA-Z0-9.-]{2,14}$", message = "{invalid.username.or.password}")
-    private String username;
+    @NotBlank(message = "{credential.can.not.be.empty}")
+    private String credential;
     @NotBlank(message = "{password.can.not.be.empty}")
     @Pattern(regexp = "^(?=\\S*[A-Z])(?=\\S*[a-z])(?=\\S*\\d).{8,}$", message = "{invalid.username.or.password}")
     private String password;
