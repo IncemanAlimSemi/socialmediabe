@@ -138,7 +138,7 @@ public class PostServiceImpl implements PostService {
 
             try {
                 LOG.info(responseUtils.getMessage("posts.are.get.with.success") + " -- Username: " + mapper.writeValueAsString(username));
-                return UsersPostResponse.builderWithExtendFields()
+                return UsersPostResponse.builder()
                         .username(username)
                         .postDetailResponses(createPostDetailResponses(posts))
                         .isSuccess(true)

@@ -31,10 +31,7 @@ public class ImageServiceImpl implements ImageService {
         if (Objects.nonNull(file) && !file.isEmpty()) {
             if (!isImage(file.getContentType())) {
                 LOG.warning(responseUtils.getMessage("not.an.image", file.getOriginalFilename()));
-                return ImageResponse.imageResponseBuilder()
-                        .isSuccess(false)
-                        .message(responseUtils.getMessage("not.an.image", file.getOriginalFilename()))
-                        .build();
+                return createImageResponse(false, responseUtils.getMessage("not.an.image", file.getOriginalFilename()), null);
             }
             try{
                 Image image = imageRepository.save(Image.builder()
@@ -46,27 +43,17 @@ public class ImageServiceImpl implements ImageService {
                         .build());
 
                 LOG.info(responseUtils.getMessage("saved.with.success", IMAGE) + ": " + image.getName());
-                return ImageResponse.imageResponseBuilder()
-                        .isSuccess(true)
-                        .message(responseUtils.getMessage("saved.with.success", IMAGE))
-                        .image(image)
-                        .build();
+                return createImageResponse(true, responseUtils.getMessage("saved.with.success", IMAGE), image);
             }catch (Exception e) {
                 LOG.warning(MessageFormat.format("Error occurred while uploading image: {0} : {1}"
                         , file.getOriginalFilename(), e.getMessage()));
-                return ImageResponse.imageResponseBuilder()
-                        .isSuccess(false)
-                        .message(responseUtils.getMessage("could.not.be.saved", IMAGE))
-                        .build();
+
+                return createImageResponse(false, responseUtils.getMessage("could.not.be.saved", IMAGE), null);
             }
         }
 
         LOG.warning(responseUtils.getMessage("null", IMAGE));
-        return ImageResponse.imageResponseBuilder()
-                .isSuccess(false)
-                .message(responseUtils.getMessage("null", IMAGE))
-                .build();
-
+        return createImageResponse(false, responseUtils.getMessage("null", IMAGE), null);
     }
 
     @Override
@@ -95,6 +82,14 @@ public class ImageServiceImpl implements ImageService {
 
     private boolean isImage(String contentType) {
         return Objects.nonNull(contentType) && contentType.startsWith("image/");
+    }
+
+    private ImageResponse createImageResponse(Boolean isSuccess, String message, Image image) {
+        return ImageResponse.builder()
+                .isSuccess(isSuccess)
+                .message(message)
+                .image(image)
+                .build();
     }
 
 }

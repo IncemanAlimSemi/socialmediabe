@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
             if (userUtils.isSessionUser(user)) {
                 LOG.info(responseUtils.getMessage("listed.with.success", USER));
-                return UserDetailResponse.userDetailResponseBuilder()
+                return UserDetailResponse.builder()
                         .isSuccess(true)
                         .message(responseUtils.getMessage("listed.with.success", USER))
                         .username(user.getUsername())
@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
         User user = findByUsername(username);
         if (Objects.nonNull(user)) {
             LOG.info(responseUtils.getMessage("listed.with.success", USER) + "-- Username" + mapper.writeValueAsString(username));
-            return OtherUserDetailResponse.otherUserDetailResponseBuilder()
+            return OtherUserDetailResponse.builder()
                     .isSuccess(true)
                     .message(responseUtils.getMessage("listed.with.success", USER))
                     .username(user.getUsername())
@@ -211,7 +211,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserFollowersResponse createUserFollowersResponse(Boolean isSuccess, String message, Set<FollowDataResponse> followers) {
-        return UserFollowersResponse.userFollowersResponseBuilder()
+        return UserFollowersResponse.builder()
                 .message(message)
                 .followers(followers)
                 .isSuccess(isSuccess)
@@ -219,7 +219,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserFollowingsResponse createUserFollowingsResponse(Boolean isSuccess, String message, Set<FollowDataResponse> followings) {
-        return UserFollowingsResponse.userFollowingsResponseBuilder()
+        return UserFollowingsResponse.builder()
                 .message(message)
                 .followings(followings)
                 .isSuccess(isSuccess)
