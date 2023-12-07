@@ -6,15 +6,14 @@ import com.alseinn.socialmedia.entity.user.enums.Role;
 import com.alseinn.socialmedia.request.auth.AuthenticationRequest;
 import com.alseinn.socialmedia.request.auth.RegisterRequest;
 import com.alseinn.socialmedia.response.auth.AuthenticationResponse;
+import com.alseinn.socialmedia.utils.ResponseUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,13 +23,15 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-
+    private final ResponseUtils responseUtils;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        Optional<User> dbUser = userRepository.findByUsername(request.getUsername());
+        Optional<List<User>> dbUsers = userRepository.findByUsernameOrEmailOrMobileNumber(request.getUsername(), request.getEmail(), request.getMobileNumber());
 
-        if (dbUser.isPresent()) {
+        if (dbUsers.isPresent()) {
             return AuthenticationResponse.builder()
+                    .isSuccess(false)
+                    .message(createRegisterMessage(request, dbUsers.get()))
                     .token(null)
                     .build();
         }
@@ -52,8 +53,30 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
 
         return AuthenticationResponse.builder()
+                .isSuccess(true)
+                .message(responseUtils.getMessage("registration.success.message"))
                 .token(jwtToken)
                 .build();
+    }
+
+    private String createRegisterMessage(RegisterRequest request, List<User> dbUsers) {
+        List<String> listOfMessage = new ArrayList<>();
+        for (User user: dbUsers) {
+            if (user.getUsername().equals(request.getUsername())) {
+                listOfMessage.add(responseUtils.getMessage("username.duplicate.message"));
+            }
+
+            if (user.getEmail().equals(request.getEmail())) {
+                listOfMessage.add((responseUtils.getMessage("email.duplicate.message")));
+
+            }
+
+            if (user.getMobileNumber().equals(request.getMobileNumber())) {
+                listOfMessage.add((responseUtils.getMessage("phone.duplicate.message")));
+            }
+        }
+
+        return String.join("/", listOfMessage);
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -61,6 +84,8 @@ public class AuthenticationService {
 
         if (Objects.isNull(user)) {
             return AuthenticationResponse.builder()
+                    .isSuccess(null)
+                    .message(responseUtils.getMessage("invalid.username.or.password"))
                     .token(null)
                     .build();
         }
@@ -72,6 +97,8 @@ public class AuthenticationService {
 
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
+                .isSuccess(true)
+                .message(responseUtils.getMessage("successfully.logged.in"))
                 .token(jwtToken)
                 .build();
     }
